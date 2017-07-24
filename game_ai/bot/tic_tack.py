@@ -121,7 +121,7 @@ def greedy_bot(board):
                         count += 1
                         if newboard_1[d] == ' ':
                             newboard_2 = new_board_bot(newboard_1, d, 'O')
-                            if not winner(newboard_2, 'O'):
+                            if winner(newboard_2, 'O') is False:
                                 wins[a] += 1
                             else:
                                 for f in range(len(board)):
@@ -135,7 +135,7 @@ def greedy_bot(board):
                                                 count += 1
                                                 if newboard_3[g] == ' ':
                                                     newboard_4 = new_board_bot(newboard_3, g, 'O')
-                                                    if not winner(newboard_4, 'O'):
+                                                    if winner(newboard_4, 'O') is False:
                                                         wins[a] += 1
                                                     else:
                                                         for q in range(len(board)):
@@ -147,7 +147,7 @@ def greedy_bot(board):
                                                                     for w in range(len(board)):
                                                                         if newboard_5[w] == ' ':
                                                                             newboard_6 = new_board_bot(newboard_5, w, 'O')
-                                                                            if not winner(newboard_6, 'O'):
+                                                                            if winner(newboard_6, 'O') is False:
                                                                                 wins[a] += 1
                                                                             else:
                                                                                 for e in range(len(board)):
@@ -159,7 +159,7 @@ def greedy_bot(board):
                                                                                             for r in range(len(board)):
                                                                                                 if newboard_7[r] ==  ' ':
                                                                                                     newboard_8 = new_board_bot(newboard_7, r, 'O')
-                                                                                                    if not winner(newboard_8, 'O'):
+                                                                                                    if winner(newboard_8, 'O') is False:
                                                                                                         wins[a] += 1
     the_max = float('-inf')
     total = 0
