@@ -175,7 +175,6 @@ def dumb_bot(board):
         move = randint(0, 8)
         if board[move] == ' ':
             break
-        print(move)
     return move
 
 
@@ -227,5 +226,3 @@ def dumb_bot(board):
             #print('It is a tie, nobody wins')
             #break
 
-
-print(directory('         ', 3))
