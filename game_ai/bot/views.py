@@ -13,7 +13,6 @@ from django.views.decorators.csrf import csrf_exempt
 def bot_play(request):
     """Api end pont for bot play."""
     data = json.loads(request.body)
-    import pdb; pdb.set_trace()
     request.response.headerlist.extend(
         (
             ('Access-Control-Allow-Origin',
