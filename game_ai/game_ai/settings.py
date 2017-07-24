@@ -29,6 +29,8 @@ ALLOWED_HOSTS = ['*', 'ec2-52-27-183-211.us-west-2.compute.amazonaws.com', 'loca
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+CORS_EXPOSE_HEADERS = ['Access-Control-Allow-Origin']
+
 # Application definition
 
 INSTALLED_APPS = [
