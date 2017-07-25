@@ -115,7 +115,9 @@ class Neural(object):
 
     def set_inputs(self, inputs):
         """Set the inputs."""
-        for i in range(len(self.layers[0])):
+        if len(inputs) is not len(self.layers[0]):
+            raise IndexError("To many or to few inputs for first layer!")
+        for i in range(len(inputs)):
             self.layers[0][i].input = inputs[i]
 
     def run(self, inputs):

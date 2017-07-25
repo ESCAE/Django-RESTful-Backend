@@ -191,12 +191,19 @@ class AITestCase(TestCase):
     # def _reset_callback(self, node, layerindex, index, nodes):
     #     """Reset Node."""
     #     node.input = 0
-    #
-    # def set_inputs(self, inputs):
-    #     """Set the inputs."""
-    #     for i in range(len(self.nodes[0])):
-    #         self.nodes[0][i].input = inputs[i]
-    #
+
+    def test_set_inputs_changes_layer1_input_values(self):
+        """Set the inputs."""
+        test_net = Neural([3, 3, 3])
+        test_net.set_inputs([5, 5, 5])
+        for i in range(3):
+            self.assertTrue(test_net.layers[0][i].input == 5)
+
+    def test_set_inputs_to_many_raises_exception(self):
+        """Set the inputs."""
+        test_net = Neural([1, 1])
+        self.assertRaises(IndexError, test_net.set_inputs, [5, 5, 5])
+
     # def run(self, inputs):
     #     """Run."""
     #     if inputs:
