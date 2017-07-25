@@ -5,10 +5,6 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 
-
-# Create your views here.
-
-
 @csrf_exempt
 def bot_play(request):
     """Api end pont for bot play."""

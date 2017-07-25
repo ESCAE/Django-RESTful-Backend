@@ -25,8 +25,11 @@ SECRET_KEY = '*g&qee4c0b$sh3ckij!i(g%!5@jz^do6a611+893l1p9$sb8a3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'ec2-52-27-183-211.us-west-2.compute.amazonaws.com', 'localhost', 'ec2-50-112-145-55.us-west-2.compute.amazonaws.com']
 
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_EXPOSE_HEADERS = ['Access-Control-Allow-Origin']
 
 # Application definition
 
@@ -39,10 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bot',
     'ai',
-    'game_api'
+    'game_api',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
