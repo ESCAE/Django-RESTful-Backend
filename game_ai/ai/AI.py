@@ -33,7 +33,7 @@ class Neural(object):
                     lambda x: x, nodes[layerindex][index].weights
                 )
             except Exception:  # need something more specific here
-                node.weights = [1 for i in range(sizes[layerindex + 1])]
+                node.weights = [0 for i in range(sizes[layerindex + 1])]
                 # node.weights = [sizes[layerindex + 1]]
         return node
 
@@ -42,8 +42,8 @@ class Neural(object):
         num = 0 if visitoutput else 1
         lastlayer = len(self.nodes) - num
         for i in range(lastlayer):
-            print('-------------------------------')
-            print('now in layer', i)
+            # print('-------------------------------')
+            # print('now in layer', i)
             for j in range(len(self.nodes[i])):
                 callback(self.nodes[i][j], i, j, self.nodes, *args)
 
@@ -127,20 +127,20 @@ class Neural(object):
 
     def _run_callback(self, node, layerindex, index, nodes):
         """Run callback."""
-        print('+++++++++++++++')
-        print('node threshold', node.threshold)
-        print('node input', node.input)
-        print(layerindex, index)
+        # print('+++++++++++++++')
+        # print('node threshold', node.threshold)
+        # print('node input', node.input)
+        # print(layerindex, index)
         # print('node weights', node.weights)
         if node.input >= node.threshold:
             for i in range(len(node.weights)):
-                print('------')
+                # print('------')
                 nodes[layerindex + 1][i].input += node.weights[i] * node.input
-                print(
-                    'node', i,
-                    'at layer', layerindex + 1,
-                    'now has input of', nodes[layerindex + 1][i].input
-                )
+                # print(
+                #     'node', i,
+                #     'at layer', layerindex + 1,
+                #     'now has input of', nodes[layerindex + 1][i].input
+                # )
 
     def get_outputs(self):
         """Get outputs."""
@@ -168,16 +168,5 @@ class Neural(object):
 
 
 if __name__ == '__main__':
-    test = Neural([2, 4, 2])
-    print(test._set_weights(
-        [
-            [
-                [1, 1, .5, 1], [0, 0, 0, 0]
-            ], [
-                [1, 1], [1, 1], [1, 1], [4, 1]
-            ], [
-                [], []
-            ]
-        ]
-    ))
-    print(test.run([1, 1]))
+    test = Neural([2, 3, 2])
+    print(test.run([3,3]))
