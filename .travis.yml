@@ -1,0 +1,21 @@
+language: python
+python:
+  - "2.7"
+  - "3.6"
+
+# services:
+#   - postgresql
+
+install:
+  - pip install -r requirements.pip
+  - pip install coveralls
+
+script:
+  # - python game_ai/manage.py migrate
+  - coverage run game_ai/manage.py test game_ai
+
+after_success:
+  - coveralls
+
+notifications:
+  email: false
