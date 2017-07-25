@@ -1,5 +1,4 @@
 """Api end points."""
-# from django.shortcuts import render
 from bot import tic_tack
 from django.http import HttpResponse
 from django.http import JsonResponse
