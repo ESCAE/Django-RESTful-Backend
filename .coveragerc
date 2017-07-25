@@ -1,0 +1,15 @@
+[run]
+omit =
+    */migrations/*,
+    */tests.py
+    manage.py
+    imagersite/wsgi.py
+    */settings.py
+
+source =
+    bot
+    ai
+    game_api
+
+[report]
+show_missing = True
