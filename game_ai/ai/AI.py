@@ -103,7 +103,6 @@ class Neural(object):
     def _set_weights_callback(self, node, layerindex, index, nodes, weights):
         """Set wieghts."""
         node.weights = weights[layerindex][index]
-        print(weights[layerindex][index])
 
     def reset(self):
         """Reset Node."""
@@ -169,4 +168,4 @@ class Neural(object):
 
 if __name__ == '__main__':
     test = Neural([2, 3, 2])
-    print(test.run([3,3]))
+    # print(test.run([3,3]))

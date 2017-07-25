@@ -1,10 +1,11 @@
+"""."""
 from django.test import TestCase
 from bot import tic_tack
 
 
 # Create your tests here.
-class tick_tack_test(TestCase):
-
+class TicTacTest(TestCase):
+    """."""
 
     def test_check_move_true(self):
         self.assertEqual(tic_tack.check_move([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], 0), True)
@@ -38,7 +39,6 @@ class tick_tack_test(TestCase):
 
     def test_winner_False_O_147(self):
         self.assertEqual(tic_tack.winner([' ', 'O', ' ', ' ', 'O', ' ', ' ', 'O', ' '], 'O')[0], False)
-
 
     def test_winner_True_X_258(self):
         self.assertEqual(tic_tack.winner([' ', ' ', 'X', ' ', ' ', 'X', ' ', ' ', 'X'], 'X')[0], True)

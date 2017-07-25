@@ -1,6 +1,6 @@
 """The manipulation file for AI.py."""
-from tic_tack import directory, new_board, greedy_bot
-from AI import Neural, Node
+from ai.tic_tack import new_board, greedy_bot
+from ai.AI import Neural, Node
 import random
 
 
@@ -12,7 +12,7 @@ class Game(object):
         self.board = board
         self.winner = None
         self.history = []
-        self.turn = 'X' if len(self.emptysquares(self.board)) % 2 == 0 else 'O'
+        self.turn = 'O' if len(self.emptysquares(self.board)) % 2 == 0 else 'X'
 
     def emptysquares(self, board):
         """Find empty spaces."""
@@ -25,13 +25,13 @@ class Game(object):
     def move(self, board, move):
         """Make a move and get the response."""
         self.history.append(self.board)
-        board_list = []
-        for x in board:
-            board_list.append(x)
         next_board = new_board(board, move, self.turn, 1)
         self.board = next_board['board']
         self.winner = next_board['WL']
         self.turn = 'X' if self.turn == 'O' else 'O'
+        # board_list = []
+        # for x in board:
+        #     board_list.append(x)
         # self.board = self.board[:next_board['move']] + 'O' + self.board[next_board['move'] + 1:]
         # if self.winner is True:
         #     return
@@ -45,10 +45,13 @@ class Game(object):
         self.winner = None
         self.turn = 'X' if self.turn == 'O' else 'O'
 
+
 class Network(Neural):
+    """."""
 
     def get_inputs(self, board, turn):
-        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0]
+        """."""
+        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
                 inputs[i * 2] = 1
@@ -59,6 +62,7 @@ class Network(Neural):
         return inputs
 
     def get_move(self, game):
+        """."""
         largest = float('-inf')
         top = []
         stored_board = game.board
@@ -69,17 +73,13 @@ class Network(Neural):
             game.turn = stored_turn
             game.move(game.board, move)
             throwaway.reset()
-            print('---------------------')
-            print(game.board)
             output = throwaway.run(self.get_inputs(game.board, game.turn))[0]
-            print(throwaway.run(self.get_inputs(game.board, game.turn)))
             if output > largest:
                 largest = output
                 top = [move]
             elif output == largest:
                 top.append(move)
         return top[0]
-
 
 
 class Individual(object):
@@ -256,7 +256,7 @@ class Genetic(object):
 #     """Docstring for ClassName."""
 
 #     def __init__(self, id, individuals):
-#         """.""" 
+#         """."""
 #         self.id = id or 0
 #         self.individuals = individuals
 
@@ -272,9 +272,9 @@ class Genetic(object):
 #         pass
 
 
-if __name__ == "__main__":
-    test = Individual(1, [18, 3, 9])
-    print(test.evaluate_one({
-                'board': '         ',
-                'Right_moves': 4
-            }))
+# if __name__ == "__main__":
+#     test = Individual(1, [18, 3, 9])
+    # print(test.evaluate_one({
+    #             'board': '         ',
+    #             'Right_moves': 4
+    #         }))
