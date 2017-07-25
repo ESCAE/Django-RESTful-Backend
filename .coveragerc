@@ -7,10 +7,9 @@ omit =
     */settings.py
 
 source =
-    game_ai
-    game_api
     bot
     ai
+    game_api
 
 [report]
 show_missing = True
