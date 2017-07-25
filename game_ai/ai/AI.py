@@ -14,6 +14,7 @@ class Neural(object):
 
     def __init__(self, sizesornodes):
         """Init the net."""
+        self.layers = []
         self.net(sizesornodes)
 
     def get_sizes(self, nodes):
@@ -40,15 +41,15 @@ class Neural(object):
     def each_node(self, visitoutput, callback, *args):
         """."""
         num = 0 if visitoutput else 1
-        lastlayer = len(self.nodes) - num
+        lastlayer = len(self.layers) - num
         for i in range(lastlayer):
             # print('-------------------------------')
             # print('now in layer', i)
-            for j in range(len(self.nodes[i])):
-                callback(self.nodes[i][j], i, j, self.nodes, *args)
+            for j in range(len(self.layers[i])):
+                callback(self.layers[i][j], i, j, self.layers, *args)
 
     def net(self, sizesornodes):
-        """."""
+        """Create net with sizes or list."""
         sizes = []
         nodes = []
         if type(sizesornodes[0]) == list:
@@ -56,20 +57,19 @@ class Neural(object):
             nodes = sizesornodes
         else:
             sizes = sizesornodes
-        self.nodes = []
         for i in range(len(sizes)):
-            self.nodes.append([])
+            self.layers.append([])
             for j in range(sizes[i]):
-                self.nodes[i].append(self.make_node(i, j, sizes, nodes))
+                self.layers[i].append(self.make_node(i, j, sizes, nodes))
 
     def _get_weights(self):
         """Weigh the nodes."""
         to_return = []
-        for i in range(len(self.nodes)):
+        for i in range(len(self.layers)):
             to_return.append([])
-            for j in range(len(self.nodes[i])):
+            for j in range(len(self.layers[i])):
                 try:
-                    to_return[i].append(self.nodes[i][j].weights)
+                    to_return[i].append(self.layers[i][j].weights)
                 except Exception:  # Need more specific exception handling.
                     to_return[i].append([])
         return to_return
@@ -77,11 +77,11 @@ class Neural(object):
     def _get_thresholds(self):
         """Find the thresholds."""
         to_return = []
-        for i in range(len(self.nodes)):
+        for i in range(len(self.layers)):
             to_return.append([])
-            for j in range(len(self.nodes[i])):
+            for j in range(len(self.layers[i])):
                 try:
-                    to_return[i].append(self.nodes[i][j].threshold)
+                    to_return[i].append(self.layers[i][j].threshold)
                 except Exception:  # Need more specific
                     to_return[i].append(0)
         return to_return
@@ -115,8 +115,8 @@ class Neural(object):
 
     def set_inputs(self, inputs):
         """Set the inputs."""
-        for i in range(len(self.nodes[0])):
-            self.nodes[0][i].input = inputs[i]
+        for i in range(len(self.layers[0])):
+            self.layers[0][i].input = inputs[i]
 
     def run(self, inputs):
         """Run."""
@@ -145,13 +145,13 @@ class Neural(object):
     def get_outputs(self):
         """Get outputs."""
         to_return = []
-        for i in self.nodes[len(self.nodes) - 1]:
+        for i in self.layers[len(self.layers) - 1]:
             to_return.append(i.input)
         return to_return
 
     def clone(self):
         """Clone the beast."""
-        return Neural(self.nodes)
+        return Neural(self.layers)
 
     def export(self):
         """Export data."""

@@ -17,22 +17,22 @@ class AITestCase(TestCase):
     def test_network_creates_node_objects(self):
         """Test network creates a node objects."""
         for network in self.networks:
-            for layer in network.nodes:
+            for layer in network.layers:
                 for node in layer:
                     self.assertIsInstance(node, Node)
 
     def test_network_sizes_return_correctly(self):
         """Test size is correct."""
         self.assertEqual(
-            self.networks[0].get_sizes(self.networks[0].nodes),
+            self.networks[0].get_sizes(self.networks[0].layers),
             [2, 3, 2]
         )
         self.assertEqual(
-            self.networks[1].get_sizes(self.networks[1].nodes),
+            self.networks[1].get_sizes(self.networks[1].layers),
             [2, 3, 4, 2]
         )
         self.assertEqual(
-            self.networks[2].get_sizes(self.networks[2].nodes),
+            self.networks[2].get_sizes(self.networks[2].layers),
             [3, 3, 3]
         )
 
@@ -91,6 +91,8 @@ class AITestCase(TestCase):
         self.assertRaises(IndexError, self.networks[1].run, [1])
         self.assertRaises(IndexError, self.networks[2].run, [1, 1])
 
+    # # ============== Not used yet ==================
+
     # def test_run_provides_proper_output(self):
     #     """Test provides proper output."""
     #     weight1 = [
@@ -120,3 +122,126 @@ class AITestCase(TestCase):
     #     self.assertEqual(self.networks[1].run([1, 0]), [12, 12])
     #     self.assertEqual(self.networks[2].run([1, 1]), [0, 0])
     #     self.assertEqual(self.networks[2].run([1, 0]), [0, 0])
+
+    # def test_make_node_males_a_node(self):
+    #     """Test should make a new Node."""
+    #     self.networks[0].make_node_males_a_node(
+    #         self, layerindex, index, sizes, nodes=None
+    #     )
+
+    # def each_node(self, visitoutput, callback, *args):
+    #     """."""
+    #     num = 0 if visitoutput else 1
+    #     lastlayer = len(self.layers) - num
+    #     for i in range(lastlayer):
+    #         # print('-------------------------------')
+    #         # print('now in layer', i)
+    #         for j in range(len(self.nodes[i])):
+    #             callback(self.nodes[i][j], i, j, self.nodes, *args)
+
+    # # ================== End ================
+
+    def test_net_creates_network_with_sizes(self):
+        """Test net works with sizes."""
+        test_net = Neural([1, 1, 1])
+        for layer in test_net.layers:
+            for node in layer:
+                self.assertTrue(node.input == 0)
+
+    # def test_net_creates_network_with_node_weights(self):
+    #     """Test net works with sizes."""
+    #     test_net = Neural([[.5], [.5], [.5]])
+    #     import pdb; pdb.set_trace()
+    #
+    #     for layer in test_net.layers:
+    #         for node in layer:
+    #             self.assertTrue(node.input == 0)
+
+    # def _get_thresholds(self):
+    #     """Find the thresholds."""
+    #     to_return = []
+    #     for i in range(len(self.nodes)):
+    #         to_return.append([])
+    #         for j in range(len(self.nodes[i])):
+    #             try:
+    #                 to_return[i].append(self.nodes[i][j].threshold)
+    #             except Exception:  # Need more specific
+    #                 to_return[i].append(0)
+    #     return to_return
+    #
+    # def _set_thresholds(self, thresholds):
+    #     """Set thresholds."""
+    #     self.each_node(False, self._set_thresholds_callback, thresholds)
+    #
+    # def _set_thresholds_callback(
+    #     self, node, layerindex, index, nodes, thresholds
+    # ):
+    #     """Thresholds callback."""
+    #     node.threshold = thresholds[layerindex][index]
+    #
+    # def _set_weights_callback(self, node, layerindex, index, nodes, weights):
+    #     """Set wieghts."""
+    #     node.weights = weights[layerindex][index]
+    #     print(weights[layerindex][index])
+    #
+    # def reset(self):
+    #     """Reset Node."""
+    #     self.each_node(True, self._reset_callback)
+    #
+    # def _reset_callback(self, node, layerindex, index, nodes):
+    #     """Reset Node."""
+    #     node.input = 0
+    #
+    # def set_inputs(self, inputs):
+    #     """Set the inputs."""
+    #     for i in range(len(self.nodes[0])):
+    #         self.nodes[0][i].input = inputs[i]
+    #
+    # def run(self, inputs):
+    #     """Run."""
+    #     if inputs:
+    #         self.set_inputs(inputs)
+    #     self.each_node(False, self._run_callback)
+    #     return self.get_outputs()
+    #
+    # def _run_callback(self, node, layerindex, index, nodes):
+    #     """Run callback."""
+    #     # print('+++++++++++++++')
+    #     # print('node threshold', node.threshold)
+    #     # print('node input', node.input)
+    #     # print(layerindex, index)
+    #     # print('node weights', node.weights)
+    #     if node.input >= node.threshold:
+    #         for i in range(len(node.weights)):
+    #             # print('------')
+    #  nodes[layerindex + 1][i].input += node.weights[i] * node.input
+    #             # print(
+    #             #     'node', i,
+    #             #     'at layer', layerindex + 1,
+    #             #     'now has input of', nodes[layerindex + 1][i].input
+    #             # )
+    #
+    # def get_outputs(self):
+    #     """Get outputs."""
+    #     to_return = []
+    #     for i in self.nodes[len(self.nodes) - 1]:
+    #         to_return.append(i.input)
+    #     return to_return
+    #
+    # def clone(self):
+    #     """Clone the beast."""
+    #     return Neural(self.nodes)
+    #
+    # def export(self):
+    #     """Export data."""
+    #     return {
+    #         'thresholds': self._get_thresholds(),
+    #         'weights': self._get_weights()
+    #     }
+    #
+    # def _import(self, data):
+    #     """Import somthing."""
+    #     net = Neural(self.get_sizes(data.thresholds))
+    #     net._set_thresholds(data.thresholds)
+    #     net._set_weights(data.weights)
+    #     return net
