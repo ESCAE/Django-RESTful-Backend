@@ -16,8 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls import include
+from bot.views import home
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/', include('game_api.urls' )),
+    url(r'^api/v1/', include('game_api.urls')),
+    url(r'^', home, name="home")
 ]
