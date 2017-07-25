@@ -1,4 +1,4 @@
-#from random import randint
+from random import randint
 
 
 #def make_board(board):
@@ -58,7 +58,7 @@ def winner(board, player):
         return False
 
 
-def new_board(board, move, chariter='X', flag = 0):
+def new_board(board, move, chariter='X', flag=0):
     output = []
     output_send = {'board': '', 'move': move, 'WL': None}
     output_str = ''
