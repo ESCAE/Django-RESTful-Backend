@@ -3,7 +3,7 @@ omit =
     */migrations/*,
     */tests.py
     manage.py
-    imagersite/wsgi.py
+    game_ai/wsgi.py
     */settings.py
 
 source =
