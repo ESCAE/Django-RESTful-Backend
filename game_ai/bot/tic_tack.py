@@ -58,7 +58,7 @@ def winner(board, player):
         return False
 
 
-def new_board(board, move, chariter='X'):
+def new_board(board, move, chariter='X', flag = 0):
     output = []
     output_send = {'board': '', 'move': move, 'WL': None}
     output_str = ''
@@ -68,7 +68,7 @@ def new_board(board, move, chariter='X'):
             output_str += board[x]
         else:
             output.append(chariter)
-            if chariter is 'X':
+            if chariter is 'X' or flag != 0:
                 output_str += chariter
             else:
                 output_str += board[x]
