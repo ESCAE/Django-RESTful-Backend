@@ -109,7 +109,7 @@ def greedy_bot(board):
         if board[a] == ' ':
             wins[a] = 0
             newboard_0 = new_board_bot(board, a, 'O')
-            if not winner(newboard_0, 'O'):
+            if winner(newboard_0, 'O') is False:
                 return a
             for s in range(len(board)):
                 count += 1
