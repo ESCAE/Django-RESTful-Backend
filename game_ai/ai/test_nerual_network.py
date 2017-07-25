@@ -147,15 +147,15 @@ class AITestCase(TestCase):
         for layer in test_net.layers:
             for node in layer:
                 self.assertTrue(node.input == 0)
+        # import pdb; pdb.set_trace()
 
-    # def test_net_creates_network_with_node_weights(self):
-    #     """Test net works with sizes."""
-    #     test_net = Neural([[.5], [.5], [.5]])
-    #     import pdb; pdb.set_trace()
-    #
-    #     for layer in test_net.layers:
-    #         for node in layer:
-    #             self.assertTrue(node.input == 0)
+    def test_net_creates_network_with_nodes(self):
+        """Test net works with sizes."""
+        test_net = Neural([1, 1, 1])
+        test_net2 = Neural(test_net.layers)
+        for layer in test_net2.layers:
+            for node in layer:
+                self.assertTrue(node.input == 0)
 
     # def _get_thresholds(self):
     #     """Find the thresholds."""

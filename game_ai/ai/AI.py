@@ -21,19 +21,19 @@ class Neural(object):
         """Return the amount of nodes in each layer."""
         return list(map(lambda x: len(x), nodes))
 
-    def make_node(self, layerindex, index, sizes, nodes=None):
+    def make_node(self, layerindex, nodeindex, sizes, layers=None):
         """Make a new Node."""
         node = Node()
         if layerindex < len(sizes) - 1:
             try:
-                node.threshold = nodes[layerindex][index].threshold
-            except Exception:  # Need something more specific here
+                node.threshold = layers[layerindex][nodeindex].threshold
+            except (IndexError, AttributeError):
                 node.threshold = 1
             try:
                 node.weights = map(
-                    lambda x: x, nodes[layerindex][index].weights
+                    lambda x: x, layers[layerindex][nodeindex].weights
                 )
-            except Exception:  # need something more specific here
+            except (IndexError, AttributeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
                 # node.weights = [sizes[layerindex + 1]]
         return node
@@ -51,16 +51,16 @@ class Neural(object):
     def net(self, sizesornodes):
         """Create net with sizes or list."""
         sizes = []
-        nodes = []
+        layers = []
         if type(sizesornodes[0]) == list:
             sizes = self.get_sizes(sizesornodes)
-            nodes = sizesornodes
+            layers = sizesornodes
         else:
             sizes = sizesornodes
         for i in range(len(sizes)):
             self.layers.append([])
             for j in range(sizes[i]):
-                self.layers[i].append(self.make_node(i, j, sizes, nodes))
+                self.layers[i].append(self.make_node(i, j, sizes, layers))
 
     def _get_weights(self):
         """Weigh the nodes."""
