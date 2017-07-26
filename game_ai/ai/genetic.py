@@ -123,7 +123,7 @@ class Individual(object):
             board_list.append(x)
         if not board_dict['Right_moves']:
             board_dict['Right_moves'] = greedy_bot(board_list)
-        network = Network(self.net) #Replaced (Network(self.net)) due to issue 1.
+        network = Network(self.net)  # Replaced (Network(self.net)) due to issue 1.
         if network.get_move(game) == board_dict['Right_moves']:
             self.score += 1
             return True
@@ -233,9 +233,15 @@ class Individual(object):
             v += self.real_rand(min_perturb, max_perturb)
         return v
 
-    def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
-        """The randomize method grabs each node in a neural net and uses the randomize callback."""
-        net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
+    def randomize(
+        self, net, modify_chance=0.01, min_thresh=-100,
+        max_thresh=100, min_weight=-10, max_weight=10
+    ):
+        """Grab each node in a neural net and uses the randomize callback."""
+        net.each_node(
+            False, self._randomize_callback, modify_chance, min_thresh,
+            max_thresh, min_weight, max_weight
+        )
         return net
 
     def _randomize_callback(
@@ -324,7 +330,6 @@ class Generation(object):
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
         """."""
-
         individuals = [0 for i in range(size)]
         for i in range(len(imported)):
             individuals[i] = imported[i]
