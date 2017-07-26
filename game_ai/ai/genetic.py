@@ -1,11 +1,11 @@
 """The manipulation file for AI.py."""
-from AI import Neural
-from AI import Node
+from ai.AI import Neural
+from ai.AI import Node
 from math import floor
 import random
-from tic_tack import directory
-from tic_tack import greedy_bot
-from tic_tack import new_board
+from ai.tic_tack import directory
+from ai.tic_tack import greedy_bot
+from ai.tic_tack import new_board
 
 # Found Issues
 # **********************************
