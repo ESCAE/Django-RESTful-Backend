@@ -219,14 +219,13 @@ class C4Game(object):
         time = datetime.datetime.now()
         for a in range(7):
             count += 1
-            self.print_board()
             wins.append(0)
-            print(a)
             if self.real_move(a):
                 board_1 = self.new_board()
                 game_1 = C4Game(board_1)
+                move_1 = game_1.get_pos(a)
                 game_1.move(a, 'B')
-                if game_1.winner(game_1.get_pos(a), a, 'B'):
+                if game_1.winner(a, move_1, 'B'):
                     return a
                 self.print_board()
                 for b in range(7):
@@ -234,32 +233,31 @@ class C4Game(object):
                     if self.real_move(b):
                         board_2 = game_1.new_board()
                         game_2 = C4Game(board_2)
+                        move_2 = game_2.get_pos(b)
                         game_2.move(b, 'R')
-                        if game_2.winner(game_2.get_pos(b), b, 'R'):
+                        if game_2.winner(b, move_2, 'R'):
                             if b == a:
                                 wins[a] = float('-inf')
                             else:
                                 return b
-                        # game_1.print_board()
                         for c in range(7):
                             count += 1
                             if self.real_move(c):
                                 board_3 = game_2.new_board()
                                 game_3 = C4Game(board_3)
+                                move_3 = game_3.get_pos(c)
                                 game_3.move(c, 'B')
-                                if game_3.winner(game_3.get_pos(c), c, 'B'):
+                                if game_3.winner(c, move_3, 'B'):
                                     wins[a] += 1
-                                    game_3.print_board()
-                                    print('hi')
                                     break
-                                # game_2.print_board()
                                 for d in range(7):
                                     count += 1
                                     if self.real_move(d):
                                         board_4 = game_3.new_board()
                                         game_4 = C4Game(board_4)
+                                        move_4 = game_4.get_pos(d)
                                         game_4.move(d, 'R')
-                                        if game_4.winner(game_4.get_pos(d), d, 'R'):
+                                        if game_4.winner(d, move_4, 'R'):
                                             wins[a] -= 1
                                             break
                                         for e in range(7):
@@ -267,31 +265,31 @@ class C4Game(object):
                                             if self.real_move(e):
                                                 board_5 = game_4.new_board()
                                                 game_5 = C4Game(board_5)
+                                                move_5 = game_5.get_pos(e)
                                                 game_5.move(e, 'B')
-                                                if game_5.winner(game_5.get_pos(e), e, 'B'):
+                                                if game_5.winner(e, move_5, 'B'):
                                                     wins[a] += 1
-                                                    game_5.print_board()
-                                                    print('cake')
                                                     break
-                                                # for f in range(7):
-                                                #     count += 1
-                                                #     if self.real_move(f):
-                                                #         board_6 = game_5.new_board()
-                                                #         game_6 = C4Game(board_6)
-                                                #         game_6.move(f, 'R')
-                                                #         if game_6.winner(game_6.get_pos(f), f, 'R'):
-                                                #             wins[a] -= 1
-                                                #             break
-                                                        # game_5.print_board()
-                                                        # for g in range(7):
-                                                        #     count += 1
-                                                        #     if self.real_move(g):
-                                                        #         board_7 = game_6.new_board()
-                                                        #         game_7 = C4Game(board_7)
-                                                        #         game_7.move(g, 'B')
-                                                        #         if game_7.winner(game_7.get_pos(g), g, 'B'):
-                                                        #             wins[a] += 1
-                                                        #             break
+                                                for f in range(7):
+                                                    count += 1
+                                                    if self.real_move(f):
+                                                        board_6 = game_5.new_board()
+                                                        game_6 = C4Game(board_6)
+                                                        move_6 = game_6.get_pos(f)
+                                                        game_6.move(f, 'R')
+                                                        if game_6.winner(f, move_6, 'R'):
+                                                            wins[a] -= 1
+                                                            break
+                                                        for g in range(7):
+                                                            count += 1
+                                                            if self.real_move(g):
+                                                                board_7 = game_6.new_board()
+                                                                game_7 = C4Game(board_7)
+                                                                move_7 = game_7.get_pos(g)
+                                                                game_7.move(g, 'B')
+                                                                if game_7.winner(g, move_7, 'B'):
+                                                                    wins[a] += 1
+                                                                    break
                                                                 # game_6.print_board()
                                                                 # for h in range(7):
                                                                 #     count += 1
@@ -336,5 +334,5 @@ class C4Game(object):
 
 
 new = C4Game()
-# print(new.greedy_bot())
-new.game()
+print(new.greedy_bot())
+# new.game()
