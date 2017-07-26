@@ -6,6 +6,7 @@ import random
 from tic_tack import directory
 from tic_tack import greedy_bot
 from tic_tack import new_board
+from operator import attrgetter
 
 # Found Issues
 # **********************************
@@ -82,16 +83,12 @@ class Network(Neural):
             game.turn = stored_turn
             game.move(game.board, move)
             throwaway.reset()
-            print('---------------------')
-            print(game.board)
             output = throwaway.run(self.get_inputs(game.board, game.turn))[0]
-            print(throwaway.run(self.get_inputs(game.board, game.turn)))
             if output > largest:
                 largest = output
                 top = [move]
             elif output == largest:
                 top.append(move)
-        # print(top)
         return top[0]
 
 
@@ -118,21 +115,14 @@ class Individual(object):
         given game move decision against Greedy Bot.
         """
         game = Game(board_dict['board'])
-        board_list = []
-        for x in game.board:
-            board_list.append(x)
-        if not board_dict['Right_moves']:
-            board_dict['Right_moves'] = greedy_bot(board_list)
-        network = Network(self.net) #Replaced (Network(self.net)) due to issue 1.
-        if network.get_move(game) == board_dict['Right_moves']:
+        if self.net.get_move(game) == board_dict['Right_moves']:
             self.score += 1
             return True
         else:
             return False
 
-    def evaluate(self):
+    def evaluate(self, test_boards):
         """Test non-ended condition boards against individual neural net."""
-        test_boards = self.generate_test_boards()
         self.score = 0
         failed_depth = -1
         filler_list = []
@@ -146,35 +136,6 @@ class Individual(object):
                 filler_list.append(False)
         self.age = len(test_boards) if failed_depth < 0 else failed_depth
 
-    def generate_test_boards(
-        self, boards=[[] for i in range(8)], visited={}, game=None
-    ):
-        """Make some test boards."""
-        boards = boards
-        visited = visited
-        game = game if game else Game()
-        emptysquares = game.emptysquares(game.board)
-        try:
-            if (visited[game.board] or game.winner or game.winner is False or len(emptysquares) <= 1):
-                return boards
-        except KeyError:
-            if (game.winner or game.winner is False or len(emptysquares) <= 1):
-                return boards
-        try:
-            boards[9 - len(emptysquares)].append({
-                'board': game.board,
-                'Right_moves': None
-            })
-        except Exception:  # need specific exception
-            pass
-        visited[game.board] = True
-
-        for move in emptysquares:
-            game.move(game.board, move)
-            self.generate_test_boards(boards, visited, game)
-            game.undo()
-        return boards
-
     def compare(self, a, b):
         """Compare two individual Neurals by age or score."""
         if a.age != b.age:
@@ -187,7 +148,7 @@ class Individual(object):
 
     def clone(self, id):
         """Clone the instance."""
-        return Individual(id, self.net.clone())
+        return Individual(id, self.net)
 
     def heads(self):
         """Return a 50/50 True/False."""
@@ -199,24 +160,27 @@ class Individual(object):
         If not run a splice callback on each node of the dest network.
         """
         if dest == source:
-            return
-        dest.each_node(False, self._splice_callback(), source)
+            return dest
+        new = Network(dest.layers)
+        new.each_node(False, self._splice_callback, source)
+        return new
 
     def _splice_callback(self, node, layer_index, index, nodes, source):
         """Use the heads function get a 50/50 on new thresholds and weights."""
         if self.heads():
-            node.threshold = source.node[layer_index][index].threshold
+            node.threshold = source.layers[layer_index][index].threshold
         for i in range(len(node.weights)):
             if self.heads():
-                node.weights[i] = source.nodes[layer_index][index].weights[i]
+                node.weights[i] = source.layers[layer_index][index].weights[i]
+
 
     def reproduce(self, id, other):
         """Clone a given individual network from that 'child'.
 
         run the splice function with the child and another individual network.
         """
-        child = self.clone(self.id)
-        self.splice(child.net, other.net)
+        new = self.splice(self.net, other.net)
+        child = Individual(id, new)
         return child
 
     def real_rand(self, minimum, maximum):
@@ -256,7 +220,7 @@ class Individual(object):
 
     def new_random(self, id, sizes):
         """Return New Random."""
-        return Individual(id, self.randomize(Neural(sizes), 1))
+        return Individual(id, self.randomize(Network(sizes), 1))
 
     def mutate(self, mutation_rate=0.05):
         """Mutation the current instance of the Individual."""
@@ -286,11 +250,50 @@ class Generation(object):
         """."""
         self.id = id
         self.individuals = individuals
+        self.test_boards = self.generate_test_boards()
+
+    def generate_test_boards(
+        self, boards=[[] for i in range(8)], visited={}, game=None
+    ):
+        """Make some test boards."""
+        boards = boards
+        visited = visited
+        game = game if game else Game()
+        emptysquares = game.emptysquares(game.board)
+        try:
+            if (visited[game.board] or game.winner or game.winner is False or len(emptysquares) <= 1):
+                return boards
+        except KeyError:
+            if (game.winner or game.winner is False or len(emptysquares) <= 1):
+                return boards
+        try:
+            board_list = []
+            for x in game.board:
+                board_list.append(x)
+            correct_move = greedy_bot(board_list)
+            boards[9 - len(emptysquares)].append({
+                'board': game.board,
+                'Right_moves': correct_move
+            })
+        except Exception:  # need specific exception
+            pass
+        visited[game.board] = True
+
+        for move in emptysquares:
+            game.move(game.board, move)
+            self.generate_test_boards(boards, visited, game)
+            game.undo()
+        return boards
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
+        print('running generation', self.id)
         for individual in self.individuals:
-            individual.evaluate()
+            individual.evaluate(self.test_boards)
+            print('---------')
+            print('Network ID:', individual.id)
+            print('Network Score:', individual.score)
+            print('Network Age:', individual.age)
 
     def order(self):
         """."""
@@ -306,6 +309,12 @@ class Generation(object):
 
     def next(self, mutation_rate=0.05, clones=0, id=-1):
         """."""
+        self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
+        print('+++++++++++++')
+        print('Generation: ', self.id)
+        print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
+        print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
+        print('+++++++++++++')
         if id < 0:
             id = self.id + 1
         old_individuals = self.individuals
@@ -317,9 +326,9 @@ class Generation(object):
         while len(new_individuals) < len(old_individuals):
             a = self.select(old_individuals)
             b = self.select(old_individuals)
-            new_individuals.append(
-                a.reproduce(len(new_individuals), b).mutate()
-            )
+            if a != b:
+                new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
+                new_individuals.append(new)
         return Generation(new_individuals, id)
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
@@ -357,8 +366,9 @@ if __name__ == "__main__":  # pragma: no cover
     # print('test score:',test.score)
     # print('test1 score:',test1.score)
     test = Generation([])
-    test = test.new_random()
+    # print(test.test_boards)
+    test = test.new_random(20)
     # test = test.next()
-    for i in range(len(test.individuals)):
-        print(i)
-        test.individuals[i].evaluate()
+    for i in range(20):
+        test.run()
+        test = test.next(.3, 3)
