@@ -15,7 +15,11 @@ class Neural(object):
     def __init__(self, sizesornodes):
         """Init the net."""
         self.layers = []
-        self.net(sizesornodes)
+        if type(sizesornodes) == list:
+            self.net(sizesornodes)
+        else:
+            self = sizesornodes
+            print(self.get_sizes(self.layers))
 
     def net(self, sizesornodes):
         """Create net with sizes or list."""

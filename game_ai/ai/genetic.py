@@ -100,10 +100,8 @@ class Individual(object):
 
     def __init__(self, id=-1, net=None):
         """."""
-        print(net)
-        # import pdb; pdb.set_trace()
         self.id = id
-        self.net = Network(net)
+        self.net = net
         self.age = float('-inf')
         self.score = float('-inf')
         self.AGE_MAX = 8
@@ -125,7 +123,7 @@ class Individual(object):
             board_list.append(x)
         if not board_dict['Right_moves']:
             board_dict['Right_moves'] = greedy_bot(board_list)
-        network = self.net  # Replaced (Network(self.net)) due to issue 1.
+        network = Network(self.net) #Replaced (Network(self.net)) due to issue 1.
         if network.get_move(game) == board_dict['Right_moves']:
             self.score += 1
             return True
@@ -235,18 +233,9 @@ class Individual(object):
             v += self.real_rand(min_perturb, max_perturb)
         return v
 
-    def randomize(
-        self, net, modify_chance=0.01, min_thresh=-100,
-        max_thresh=100, min_weight=-10, max_weight=10
-    ):
-        """Grabs each node in a neural net and uses the randomize callback."""
-        print('--------------------')
-        print('net :', net)
-        print('type :', type(net))
-        net.each_node(
-            False, self._randomize_callback, modify_chance,
-            min_thresh, max_thresh, min_weight, max_weight
-        )
+    def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
+        """The randomize method grabs each node in a neural net and uses the randomize callback."""
+        net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
         return net
 
     def _randomize_callback(
@@ -335,6 +324,7 @@ class Generation(object):
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
         """."""
+
         individuals = [0 for i in range(size)]
         for i in range(len(imported)):
             individuals[i] = imported[i]
@@ -364,17 +354,11 @@ class Generation(object):
 if __name__ == "__main__":  # pragma: no cover
     # test = Individual(-1, [18,27,9])
     # test.evaluate()
-    for i in range(10):
-        test1 = Individual(-2, [18, 26, 9])
-        test1.mutate(0.05)
-        test = test1.export()
-        Neural._import(test['net'])
-        print(test['id'])
-        print(test['net'])
     # print('test score:',test.score)
     # print('test1 score:',test1.score)
-    # test = Generation([])
-    # test = test.new_random()
+    test = Generation([])
+    test = test.new_random()
     # test = test.next()
-    # for i in test.individuals:
-    #     print(i.net.get_sizes(i.net.nodes))
+    for i in range(len(test.individuals)):
+        print(i)
+        test.individuals[i].evaluate()
