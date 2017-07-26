@@ -135,9 +135,9 @@ class Neural(object):
     # =========== import related ============ #
 
     def _import(self, data):
-        net = Neural(self.get_sizes(data.thresholds))
-        net._set_thresholds(data.thresholds)
-        net._set_weights(data.weights)
+        net = Neural(self.get_sizes(data['thresholds']))
+        net._set_thresholds(data['thresholds'])
+        net._set_weights(data['weights'])
         return net
 
     def _set_thresholds(self, thresholds):

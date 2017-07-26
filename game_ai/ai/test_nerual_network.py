@@ -85,56 +85,6 @@ class AITestCase(TestCase):
         self.assertEqual(self.networks[1]._get_weights(), weight2)
         self.assertEqual(self.networks[2]._get_weights(), weight3)
 
-    # # ============== Not used yet ==================
-
-    # def test_run_provides_proper_output(self):
-    #     """Test provides proper output."""
-    #     weight1 = [
-    #         [[1, 1, 1], [1, 1, 1]],
-    #         [[1, 1], [1, 1], [1, 1]],
-    #         [[], []]
-    #     ]
-    #     weight2 = [
-    #         [[1, 1, 1], [1, 1, 1]],
-    #         [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
-    #         [[1, 1], [1, 1], [1, 1], [1, 1]],
-    #         [[], []]
-    #     ]
-    #     weight3 = [
-    #         [[0, 0, 0], [1, 1, 1], [1, 1, 1]],
-    #         [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
-    #         [[], [], []]
-    #     ]
-    #     self.networks[0]._set_weights(weight1)
-    #     self.networks[1]._set_weights(weight2)
-    #     self.networks[2]._set_weights(weight3)
-    #     print('----------+++++++++++')
-    #     print(self.networks[0].run([1, 0]))
-    #     self.assertEqual(self.networks[0].run([1, 1]), [6, 6])
-    #     self.assertEqual(self.networks[0].run([1, 0]), [3, 3])
-    #     self.assertEqual(self.networks[1].run([1, 1]), [24, 24])
-    #     self.assertEqual(self.networks[1].run([1, 0]), [12, 12])
-    #     self.assertEqual(self.networks[2].run([1, 1]), [0, 0])
-    #     self.assertEqual(self.networks[2].run([1, 0]), [0, 0])
-
-    # def test_make_node_males_a_node(self):
-    #     """Test should make a new Node."""
-    #     self.networks[0].make_node_males_a_node(
-    #         self, layerindex, index, sizes, nodes=None
-    #     )
-
-    # def each_node(self, visitoutput, callback, *args):
-    #     """."""
-    #     num = 0 if visitoutput else 1
-    #     lastlayer = len(self.layers) - num
-    #     for i in range(lastlayer):
-    #         # print('-------------------------------')
-    #         # print('now in layer', i)
-    #         for j in range(len(self.nodes[i])):
-    #             callback(self.nodes[i][j], i, j, self.nodes, *args)
-
-    # # ================== End ================
-
     def test_net_creates_network_with_sizes(self):
         """Test net works with sizes."""
         test_net = Neural([1, 1, 1])
@@ -151,33 +101,7 @@ class AITestCase(TestCase):
             for node in layer:
                 self.assertTrue(node.input == 0)
 
-    # def _get_thresholds(self):
-    #     """Find the thresholds."""
-    #     to_return = []
-    #     for i in range(len(self.nodes)):
-    #         to_return.append([])
-    #         for j in range(len(self.nodes[i])):
-    #             try:
-    #                 to_return[i].append(self.nodes[i][j].threshold)
-    #             except Exception:  # Need more specific
-    #                 to_return[i].append(0)
-    #     return to_return
-    #
-    # def _set_thresholds(self, thresholds):
-    #     """Set thresholds."""
-    #     self.each_node(False, self._set_thresholds_callback, thresholds)
-    #
-    # def _set_thresholds_callback(
-    #     self, node, layerindex, index, nodes, thresholds
-    # ):
-    #     """Thresholds callback."""
-    #     node.threshold = thresholds[layerindex][index]
-    #
-    # def _set_weights_callback(self, node, layerindex, index, nodes, weights):
-    #     """Set wieghts."""
-    #     node.weights = weights[layerindex][index]
-    #     print(weights[layerindex][index])
-    #
+
     # def reset(self):
     #     """Reset Node."""
     #     self.each_node(True, self._reset_callback)
@@ -197,23 +121,6 @@ class AITestCase(TestCase):
         """Set the inputs."""
         test_net = Neural([1, 1])
         self.assertRaises(IndexError, test_net.set_inputs, [5, 5, 5])
-
-    # def _run_callback(self, node, layerindex, index, nodes):
-    #     """Run callback."""
-    #     # print('+++++++++++++++')
-    #     # print('node threshold', node.threshold)
-    #     # print('node input', node.input)
-    #     # print(layerindex, index)
-    #     # print('node weights', node.weights)
-    #     if node.input >= node.threshold:
-    #         for i in range(len(node.weights)):
-    #             # print('------')
-    #  nodes[layerindex + 1][i].input += node.weights[i] * node.input
-    #             # print(
-    #             #     'node', i,
-    #             #     'at layer', layerindex + 1,
-    #             #     'now has input of', nodes[layerindex + 1][i].input
-    #             # )
 
     def test_get_outputs_gets_the_outputs(self):
         """Get outputs."""
@@ -247,12 +154,22 @@ class AITestCase(TestCase):
             }
         )
 
-    # def _import(self, data):
-    #     """Import somthing."""
-    #     net = Neural(self.get_sizes(data.thresholds))
-    #     net._set_thresholds(data.thresholds)
-    #     net._set_weights(data.weights)
-    #     return net
+    def test_import_imports_values(self):
+        """Import somthing."""
+        net = Neural([1, 1, 1])
+        data = net.export()
+        net2 = net._import(data)
+        for i in range(len(net.layers) - 1):
+            for j in range(len(net.layers[i])):
+                self.assertTrue(
+                    net.layers[i][j].input == net2.layers[i][j].input
+                )
+                self.assertTrue(
+                    net.layers[i][j].threshold == net2.layers[i][j].threshold
+                )
+                self.assertTrue(
+                    net.layers[i][j].weights == net2.layers[i][j].weights
+                )
 
     def test_clone_clones_the_neural_net(self):
         """Test clones."""
@@ -269,3 +186,13 @@ class AITestCase(TestCase):
                 self.assertTrue(
                     net.layers[i][j].weights == net2.layers[i][j].weights
                 )
+
+    def test_rest_rests_inputs_to_zero(self):
+        """Test rest restes values to zero."""
+        net = Neural([2, 2, 1])
+        net.run([2, 2])
+        for node in net.layers[0]:
+            self.assertEqual(node.input, 2)
+        net.reset()
+        for node in net.layers[0]:
+            self.assertEqual(node.input, 0)
