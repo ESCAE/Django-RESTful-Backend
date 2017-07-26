@@ -10,7 +10,7 @@ class GeneticTests(TestCase):
     def setUp(self):
         """Set a new game for testing."""
         self.game = genetic.Game()
-        self.network = genetic.Network(Neural([18, 27, 9, 1]))
+        self.network = genetic.Network([18, 27, 9, 1])
         self.gen = genetic.Generation([])
 
     # =========== Game tests ========= #
@@ -68,11 +68,11 @@ class GeneticTests(TestCase):
             inputs == [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         )
 
-    # def test_get_move_gets_a_move(self):
-    #     """Gets a move."""
-    #     game = self.game
-    #     move = self.network.get_move(game)
-    #     import pdb; pdb.set_trace()
+    def test_get_move_gets_a_move(self):
+        """Gets a move."""
+        game = self.game
+        move = self.network.get_move(game)
+        self.assertTrue(move == 0)
 
     # ============ Iindividual tests =============== #
 
