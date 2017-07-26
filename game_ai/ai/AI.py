@@ -44,10 +44,11 @@ class Neural(object):
             except (IndexError, AttributeError):
                 node.threshold = 1
             try:
-                node.weights = list(map(lambda x: x, layers[layerindex][nodeindex].weights))
+                node.weights = list(
+                    map(lambda x: x, layers[layerindex][nodeindex].weights)
+                )
             except (IndexError, AttributeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
-                # node.weights = [sizes[layerindex + 1]]
         return node
 
     def run(self, inputs):

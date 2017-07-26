@@ -214,7 +214,7 @@ class AITestCase(TestCase):
     #             #     'at layer', layerindex + 1,
     #             #     'now has input of', nodes[layerindex + 1][i].input
     #             # )
-    #
+
     def test_get_outputs_gets_the_outputs(self):
         """Get outputs."""
         net = self.networks[0]
@@ -225,7 +225,7 @@ class AITestCase(TestCase):
         ]
         net._set_weights(weight1)
         test = net.get_outputs()
-        # import pdb; pdb.set_trace()
+        self.assertTrue(test == [0, 0])
 
     def test_run_raises_index_error_with_improper_input(self):
         """Test improper input raises index error."""
@@ -237,10 +237,16 @@ class AITestCase(TestCase):
         """Export the network."""
         net = Neural([1, 3, 2])
         data = net.export()
-        # import pdb; pdb.set_trace()
-        pass
+        self.assertTrue(
+            data == {
+                'thresholds': [[1], [1, 1, 1], [0, 0]],
+                'weights': [
+                    [[0, 0, 0]], [[0, 0], [0, 0], [0, 0]],
+                    [[], []]
+                ]
+            }
+        )
 
-    #
     # def _import(self, data):
     #     """Import somthing."""
     #     net = Neural(self.get_sizes(data.thresholds))
