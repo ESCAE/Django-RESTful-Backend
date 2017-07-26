@@ -56,10 +56,10 @@ class Game(object):
 
 
 class Network(Neural):
-    """."""
+    """Create Network with boards states."""
 
     def get_inputs(self, board, turn):
-        """."""
+        """Get this inputs."""
         inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
@@ -82,10 +82,10 @@ class Network(Neural):
             game.turn = stored_turn
             game.move(game.board, move)
             throwaway.reset()
-            print('---------------------')
-            print(game.board)
+            # print('---------------------')
+            # print(game.board)
             output = throwaway.run(self.get_inputs(game.board, game.turn))[0]
-            print(throwaway.run(self.get_inputs(game.board, game.turn)))
+            # print(throwaway.run(self.get_inputs(game.board, game.turn)))
             if output > largest:
                 largest = output
                 top = [move]

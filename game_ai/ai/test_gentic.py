@@ -1,4 +1,5 @@
 """Module to test genetic."""
+from ai.AI import Neural
 from ai import genetic
 from django.test import TestCase
 
@@ -9,6 +10,9 @@ class GeneticTests(TestCase):
     def setUp(self):
         """Set a new game for testing."""
         self.game = genetic.Game()
+        self.network = genetic.Network(Neural([18, 27, 9, 1]))
+
+    # =========== Game tests ========= #
 
     def test_properties_of_new_game(self):
         """Test a new games properties."""
@@ -53,3 +57,18 @@ class GeneticTests(TestCase):
             self.game.history, ['         ', '    X    ']
         )
         self.assertEqual(self.game.turn, 'O')
+
+    # =========== Network tests =============== #
+
+    def test_get_inputs_returns_expected_inputs(self):
+        """Return inputs based on board and turn."""
+        inputs = self.network.get_inputs('   OX    ', 'X')
+        self.assertTrue(
+            inputs == [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        )
+
+    # def test_get_move_gets_a_move(self):
+    #     """Gets a move."""
+    #     game = self.game
+    #     move = self.network.get_move(game)
+    #     import pdb; pdb.set_trace()
