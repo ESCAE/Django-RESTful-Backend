@@ -250,6 +250,7 @@ class C4Game(object):
                                 if game_3.winner(game_3.get_pos(c), c, 'B'):
                                     wins[a] += 1
                                     game_3.print_board()
+                                    print('hi')
                                     break
                                 # game_2.print_board()
                                 for d in range(7):
@@ -270,6 +271,7 @@ class C4Game(object):
                                                 if game_5.winner(game_5.get_pos(e), e, 'B'):
                                                     wins[a] += 1
                                                     game_5.print_board()
+                                                    print('cake')
                                                     break
                                                 # for f in range(7):
                                                 #     count += 1
