@@ -44,9 +44,9 @@ class Neural(object):
             except (IndexError, AttributeError):
                 node.threshold = 1
             try:
-                node.weights = list(
-                    map(lambda x: x, layers[layerindex][nodeindex].weights)
-                )
+                node.weights = list(map(
+                    lambda x: x, layers[layerindex][nodeindex].weights
+                ))
             except (IndexError, AttributeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
         return node
@@ -174,7 +174,6 @@ class Neural(object):
     def clone(self):
         """Clone the beast."""
         return Neural(self.layers)
-
 
 if __name__ == '__main__':
     test = Neural([2, 3, 2])
