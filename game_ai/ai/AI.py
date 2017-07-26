@@ -19,7 +19,6 @@ class Neural(object):
             self.net(sizesornodes)
         else:
             self = sizesornodes
-            print(self.get_sizes(self.layers))
 
     def net(self, sizesornodes):
         """Create net with sizes or list."""
