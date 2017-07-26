@@ -186,3 +186,13 @@ class AITestCase(TestCase):
                 self.assertTrue(
                     net.layers[i][j].weights == net2.layers[i][j].weights
                 )
+
+    def test_rest_rests_inputs_to_zero(self):
+        """Test rest restes values to zero."""
+        net = Neural([2, 2, 1])
+        net.run([2, 2])
+        for node in net.layers[0]:
+            self.assertEqual(node.input, 2)
+        net.reset()
+        for node in net.layers[0]:
+            self.assertEqual(node.input, 0)
