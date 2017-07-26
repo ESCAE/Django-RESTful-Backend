@@ -204,13 +204,6 @@ class AITestCase(TestCase):
         test_net = Neural([1, 1])
         self.assertRaises(IndexError, test_net.set_inputs, [5, 5, 5])
 
-    # def run(self, inputs):
-    #     """Run."""
-    #     if inputs:
-    #         self.set_inputs(inputs)
-    #     self.each_node(False, self._run_callback)
-    #     return self.get_outputs()
-    #
     # def _run_callback(self, node, layerindex, index, nodes):
     #     """Run callback."""
     #     # print('+++++++++++++++')
@@ -228,13 +221,19 @@ class AITestCase(TestCase):
     #             #     'now has input of', nodes[layerindex + 1][i].input
     #             # )
     #
-    # def get_outputs(self):
-    #     """Get outputs."""
-    #     to_return = []
-    #     for i in self.nodes[len(self.nodes) - 1]:
-    #         to_return.append(i.input)
-    #     return to_return
-    #
+    def test_get_outputs_gets_the_outputs(self):
+        """Get outputs."""
+        net = self.networks[0]
+        weight1 = [
+            [[1, 1, 1], [1, 1, 1]],
+            [[1, 1], [1, 1], [1, 1]],
+            [[], []]
+        ]
+        net._set_weights(weight1)
+        test = net.get_outputs()
+        # import pdb; pdb.set_trace()
+        pass
+
     # def clone(self):
     #     """Clone the beast."""
     #     return Neural(self.nodes)

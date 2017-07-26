@@ -121,7 +121,7 @@ class Neural(object):
             self.layers[0][i].input = inputs[i]
 
     def run(self, inputs):
-        """Run."""
+        """Set inputs(or not), return Outputs."""
         if inputs:
             self.set_inputs(inputs)
         self.each_node(False, self._run_callback)
@@ -146,10 +146,10 @@ class Neural(object):
 
     def get_outputs(self):
         """Get outputs."""
-        to_return = []
-        for i in self.layers[len(self.layers) - 1]:
-            to_return.append(i.input)
-        return to_return
+        outputs = []
+        for node in self.layers[-1]:
+            outputs.append(node.input)
+        return outputs
 
     def clone(self):
         """Clone the beast."""
