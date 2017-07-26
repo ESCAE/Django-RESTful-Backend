@@ -76,6 +76,44 @@ class GeneticTests(TestCase):
 
     # ============ Iindividual tests =============== #
 
+    def test_create_two_individuals(self):
+        """Create two individuals."""
+        test = self.gen
+        test = test.new_random(2)
+        test = test.new_random(2, [18, 27, 9, 1], 0, test.individuals)
+        self.assertTrue(len(test.individuals) == 2)
+        # import pdb; pdb.set_trace()
+
+    def test_slice_two_individuals(self):
+        """Create two individuals."""
+        gen = self.gen
+        gen = gen.new_random(2)
+        indiv1 = gen.individuals[0]
+        indiv2 = gen.individuals[1]
+        splice = indiv1.splice(indiv1.net, indiv2.net)
+        self.assertTrue(indiv1.net.layers is not indiv2.net.layers)
+        self.assertTrue(splice.layers is not indiv1.net.layers)
+        self.assertTrue(splice.layers is not indiv2.net.layers)
+        flag = True
+        for i in range(len(splice.layers) - 1):
+            for j in range(len(splice.layers[i])):
+                for k in range(len(splice.layers[i][j].weights)):
+                    splice_weight = splice.layers[i][j].weights[k]
+                    indiv_weight = indiv1.net.layers[i][j].weights[k]
+                    if splice_weight is not indiv_weight:
+                        flag = False
+        self.assertFalse(flag)
+        flag = True
+        for i in range(len(splice.layers) - 1):
+            for j in range(len(splice.layers[i])):
+                for k in range(len(splice.layers[i][j].weights)):
+                    splice_weight = splice.layers[i][j].weights[k]
+                    indiv_weight = indiv2.net.layers[i][j].weights[k]
+                    if splice_weight is not indiv_weight:
+                        flag = False
+        self.assertFalse(flag)
+        # import pdb; pdb.set_trace()
+
     # ============ Generation tests =============== #
     def test_generate_test_boards(self):
         """Gen test boards does."""
