@@ -11,6 +11,7 @@ class GeneticTests(TestCase):
         """Set a new game for testing."""
         self.game = genetic.Game()
         self.network = genetic.Network(Neural([18, 27, 9, 1]))
+        self.gen = genetic.Generation([])
 
     # =========== Game tests ========= #
 
@@ -76,5 +77,7 @@ class GeneticTests(TestCase):
     # ============ Iindividual tests =============== #
 
     # ============ Generation tests =============== #
-
-    
+    def test_generate_test_boards(self):
+        """Gen test boards does."""
+        self.assertEqual(len(self.gen.test_boards), 8)
+        # import pdb; pdb.set_trace()
