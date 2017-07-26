@@ -84,6 +84,7 @@ class Network(Neural):
             game.move(game.board, move)
             throwaway.reset()
             output = throwaway.run(self.get_inputs(game.board, game.turn))[0]
+            game.undo()
             if output > largest:
                 largest = output
                 top = [move]
@@ -100,13 +101,44 @@ class Individual(object):
         self.id = id
         self.net = net
         self.age = float('-inf')
-        self.score = float('-inf')
+        self.score = 0
         self.AGE_MAX = 8
         self.SCORE_MAX = 4298
+        self.winner = False
+        self.seen_list = []
 
     def compare_to(self, other):
         """Referencing compare call self to a given individual."""
         return self.compare(self, other)
+
+    def evaluate_versus(self, other):
+        game = Game()
+        a = self
+        b = other
+        while True:
+            if ' ' not in game.board:
+                break
+            game.move(game.board, a.net.get_move(game))
+            # print('------')
+            # print('|', game.board[0:3], '|')
+            # print('|', game.board[3:6], '|')
+            # print('|', game.board[6:9], '|')
+            # print('------')
+            if game.winner is not None:
+                a.score += 1
+                break
+            if ' ' not in game.board:
+                break
+            game.move(game.board, b.net.get_move(game))
+            # print('------')
+            # print('|', game.board[0:3], '|')
+            # print('|', game.board[3:6], '|')
+            # print('|', game.board[6:9], '|')
+            # print('------')
+            if game.winner is not None:
+                b.score += 1
+                break
+
 
     def evaluate_one(self, board_dict):
         """Compare scoring function.
@@ -285,6 +317,15 @@ class Generation(object):
             game.undo()
         return boards
 
+    def run_versus_self(self):
+        for a in self.individuals:
+            for b in self.individuals:
+                if a != b and a not in b.seen_list and b not in a.seen_list:
+                    a.evaluate_versus(b)
+                    b.evaluate_versus(a)
+                    a.seen_list.append(b)
+                    b.seen_list.append(a)
+
     def run(self):
         """Run evaluate for every individual network in a Generation."""
         print('running generation', self.id)
@@ -312,6 +353,7 @@ class Generation(object):
         self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
         print('+++++++++++++')
         print('Generation: ', self.id)
+        print('High Score:', self.individuals[0].score)
         print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
         print('+++++++++++++')
@@ -360,12 +402,6 @@ class Generation(object):
         )), id)
 
 
-test = Generation([])
-test = test.new_random(20)
-for i in range(20):
-    test.run()
-    test = test.next(.5, 3)
-
 
 if __name__ == "__main__":  # pragma: no cover
     # test = Individual(-1, [18,27,9])
@@ -375,7 +411,67 @@ if __name__ == "__main__":  # pragma: no cover
     test = Generation([])
     # print(test.test_boards)
     test = test.new_random(20)
+    # for i in range(10):
+    #     test.individuals[0].evaluate_versus(test.individuals[1])
+    #     print('------------')
+    #     print('a:', test.individuals[0].score)
+    #     print('b:', test.individuals[1].score)
     # test = test.next()
-    for i in range(20):
-        test.run()
-        test = test.next(1, 3)
+    # for i in range(10):
+    #     test.run()
+    #     test = test.next(.2, 5)
+    for i in range(100):
+        test.run_versus_self()
+        test = test.next(.05, 5)
+    game = Game()
+    a = test.individuals[0]
+    b = test.individuals[1]
+    while True:
+        if ' ' not in game.board:
+            break
+        game.move(game.board, a.net.get_move(game))
+        print('------')
+        print('|', game.board[0:3], '|')
+        print('|', game.board[3:6], '|')
+        print('|', game.board[6:9], '|')
+        print('------')
+        if game.winner is not None:
+            a.score += 1
+            break
+        if ' ' not in game.board:
+            break
+        game.move(game.board, b.net.get_move(game))
+        print('------')
+        print('|', game.board[0:3], '|')
+        print('|', game.board[3:6], '|')
+        print('|', game.board[6:9], '|')
+        print('------')
+        if game.winner is not None:
+            b.score += 1
+            break
+    game = Game()
+    a = test.individuals[1]
+    b = test.individuals[0]
+    while True:
+        if ' ' not in game.board:
+            break
+        game.move(game.board, a.net.get_move(game))
+        print('------')
+        print('|', game.board[0:3], '|')
+        print('|', game.board[3:6], '|')
+        print('|', game.board[6:9], '|')
+        print('------')
+        if game.winner is not None:
+            a.score += 1
+            break
+        if ' ' not in game.board:
+            break
+        game.move(game.board, b.net.get_move(game))
+        print('------')
+        print('|', game.board[0:3], '|')
+        print('|', game.board[3:6], '|')
+        print('|', game.board[6:9], '|')
+        print('------')
+        if game.winner is not None:
+            b.score += 1
+            break

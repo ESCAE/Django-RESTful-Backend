@@ -1763,7 +1763,6 @@ static PyObject *__pyx_tp_new_2ai_7genetic___pyx_scope_struct__next(PyTypeObject
 static PyObject *__pyx_tp_new_2ai_7genetic___pyx_scope_struct_1_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_2ai_7genetic___pyx_scope_struct_2_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static __Pyx_CachedCFunction __pyx_umethod_PyList_Type_pop = {0, &__pyx_n_s_pop, 0, 0, 0};
-static PyObject *__pyx_float__3;
 static PyObject *__pyx_float__5;
 static PyObject *__pyx_float_0_5;
 static PyObject *__pyx_float_0_01;
@@ -13524,7 +13523,7 @@ static int __Pyx_InitCachedConstants(void) {
  *     # test = test.next()
  *     for i in range(20):             # <<<<<<<<<<<<<<
  *         test.run()
- *         test = test.next(.3, 3)
+ *         test = test.next(1, 3)
  */
   __pyx_tuple__90 = PyTuple_Pack(1, __pyx_int_20); if (unlikely(!__pyx_tuple__90)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__90);
@@ -13533,9 +13532,9 @@ static int __Pyx_InitCachedConstants(void) {
   /* "ai/genetic.pyx":381
  *     for i in range(20):
  *         test.run()
- *         test = test.next(.3, 3)             # <<<<<<<<<<<<<<
+ *         test = test.next(1, 3)             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__91 = PyTuple_Pack(2, __pyx_float__3, __pyx_int_3); if (unlikely(!__pyx_tuple__91)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_tuple__91 = PyTuple_Pack(2, __pyx_int_1, __pyx_int_3); if (unlikely(!__pyx_tuple__91)) __PYX_ERR(0, 381, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__91);
   __Pyx_GIVEREF(__pyx_tuple__91);
   __Pyx_RefNannyFinishContext();
@@ -13548,7 +13547,6 @@ static int __Pyx_InitCachedConstants(void) {
 static int __Pyx_InitGlobals(void) {
   __pyx_umethod_PyList_Type_pop.type = (PyObject*)&PyList_Type;
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_float__3 = PyFloat_FromDouble(.3); if (unlikely(!__pyx_float__3)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float__5 = PyFloat_FromDouble(.5); if (unlikely(!__pyx_float__5)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float_0_5 = PyFloat_FromDouble(0.5); if (unlikely(!__pyx_float_0_5)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float_0_01 = PyFloat_FromDouble(0.01); if (unlikely(!__pyx_float_0_01)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -14787,7 +14785,7 @@ PyMODINIT_FUNC PyInit_genetic(void)
  *     # test = test.next()
  *     for i in range(20):             # <<<<<<<<<<<<<<
  *         test.run()
- *         test = test.next(.3, 3)
+ *         test = test.next(1, 3)
  */
     __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_tuple__90, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 379, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -14838,7 +14836,7 @@ PyMODINIT_FUNC PyInit_genetic(void)
  *     # test = test.next()
  *     for i in range(20):
  *         test.run()             # <<<<<<<<<<<<<<
- *         test = test.next(.3, 3)
+ *         test = test.next(1, 3)
  */
       __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_test); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 380, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -14868,7 +14866,7 @@ PyMODINIT_FUNC PyInit_genetic(void)
       /* "ai/genetic.pyx":381
  *     for i in range(20):
  *         test.run()
- *         test = test.next(.3, 3)             # <<<<<<<<<<<<<<
+ *         test = test.next(1, 3)             # <<<<<<<<<<<<<<
  */
       __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_test); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 381, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
@@ -14886,7 +14884,7 @@ PyMODINIT_FUNC PyInit_genetic(void)
  *     # test = test.next()
  *     for i in range(20):             # <<<<<<<<<<<<<<
  *         test.run()
- *         test = test.next(.3, 3)
+ *         test = test.next(1, 3)
  */
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
