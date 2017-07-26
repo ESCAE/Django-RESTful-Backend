@@ -227,23 +227,19 @@ class AITestCase(TestCase):
         test = net.get_outputs()
         # import pdb; pdb.set_trace()
 
-
     def test_run_raises_index_error_with_improper_input(self):
         """Test improper input raises index error."""
         self.assertRaises(IndexError, self.networks[0].run, [1])
         self.assertRaises(IndexError, self.networks[1].run, [1])
         self.assertRaises(IndexError, self.networks[2].run, [1, 1])
 
-    # def clone(self):
-    #     """Clone the beast."""
-    #     return Neural(self.nodes)
-    #
-    # def export(self):
-    #     """Export data."""
-    #     return {
-    #         'thresholds': self._get_thresholds(),
-    #         'weights': self._get_weights()
-    #     }
+    def test_export_eports_the_network(self):
+        """Export the network."""
+        net = Neural([1, 3, 2])
+        data = net.export()
+        # import pdb; pdb.set_trace()
+        pass
+
     #
     # def _import(self, data):
     #     """Import somthing."""
@@ -251,3 +247,19 @@ class AITestCase(TestCase):
     #     net._set_thresholds(data.thresholds)
     #     net._set_weights(data.weights)
     #     return net
+
+    def test_clone_clones_the_neural_net(self):
+        """Test clones."""
+        net = Neural([5, 6, 5])
+        net2 = net.clone()
+        for i in range(len(net.layers) - 1):
+            for j in range(len(net.layers[i])):
+                self.assertTrue(
+                    net.layers[i][j].input == net2.layers[i][j].input
+                )
+                self.assertTrue(
+                    net.layers[i][j].threshold == net2.layers[i][j].threshold
+                )
+                self.assertTrue(
+                    net.layers[i][j].weights == net2.layers[i][j].weights
+                )

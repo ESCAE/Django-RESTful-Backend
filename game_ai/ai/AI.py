@@ -44,9 +44,7 @@ class Neural(object):
             except (IndexError, AttributeError):
                 node.threshold = 1
             try:
-                node.weights = map(
-                    lambda x: x, layers[layerindex][nodeindex].weights
-                )
+                node.weights = list(map(lambda x: x, layers[layerindex][nodeindex].weights))
             except (IndexError, AttributeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
                 # node.weights = [sizes[layerindex + 1]]
@@ -111,27 +109,27 @@ class Neural(object):
 
     def _get_weights(self):
         """Weigh the nodes."""
-        to_return = []
+        weights = []
         for i in range(len(self.layers)):
-            to_return.append([])
+            weights.append([])
             for j in range(len(self.layers[i])):
                 try:
-                    to_return[i].append(self.layers[i][j].weights)
+                    weights[i].append(self.layers[i][j].weights)
                 except Exception:  # Need more specific exception handling.
-                    to_return[i].append([])
-        return to_return
+                    weights[i].append([])
+        return weights
 
     def _get_thresholds(self):
         """Find the thresholds."""
-        to_return = []
+        thresholds = []
         for i in range(len(self.layers)):
-            to_return.append([])
+            thresholds.append([])
             for j in range(len(self.layers[i])):
                 try:
-                    to_return[i].append(self.layers[i][j].threshold)
+                    thresholds[i].append(self.layers[i][j].threshold)
                 except Exception:  # Need more specific
-                    to_return[i].append(0)
-        return to_return
+                    thresholds[i].append(0)
+        return thresholds
 
     # =========== import related ============ #
 
