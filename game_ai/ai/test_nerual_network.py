@@ -85,12 +85,6 @@ class AITestCase(TestCase):
         self.assertEqual(self.networks[1]._get_weights(), weight2)
         self.assertEqual(self.networks[2]._get_weights(), weight3)
 
-    def test_run_raises_index_error_with_improper_input(self):
-        """Test improper input raises index error."""
-        self.assertRaises(IndexError, self.networks[0].run, [1])
-        self.assertRaises(IndexError, self.networks[1].run, [1])
-        self.assertRaises(IndexError, self.networks[2].run, [1, 1])
-
     # # ============== Not used yet ==================
 
     # def test_run_provides_proper_output(self):
@@ -232,7 +226,13 @@ class AITestCase(TestCase):
         net._set_weights(weight1)
         test = net.get_outputs()
         # import pdb; pdb.set_trace()
-        pass
+
+
+    def test_run_raises_index_error_with_improper_input(self):
+        """Test improper input raises index error."""
+        self.assertRaises(IndexError, self.networks[0].run, [1])
+        self.assertRaises(IndexError, self.networks[1].run, [1])
+        self.assertRaises(IndexError, self.networks[2].run, [1, 1])
 
     # def clone(self):
     #     """Clone the beast."""
