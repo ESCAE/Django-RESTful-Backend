@@ -1,12 +1,16 @@
 """The manipulation file for AI.py."""
-from tic_tack import directory, new_board, greedy_bot
-from AI import Neural, Node
+from AI import Neural
+from AI import Node
 from math import floor
 import random
+from tic_tack import directory
+from tic_tack import greedy_bot
+from tic_tack import new_board
 
-    #Found Issues
-    #**********************************
-    #1. 214 randomize, param net is a list. list does not have the attribute of 'each_node'. Maybe solved with line 114.
+# Found Issues
+# **********************************
+# 1. 214 randomize, param net is a list. list does not have the attribute
+# of 'each_node'. Maybe solved with line 114.
 
 
 class Game(object):
@@ -50,10 +54,13 @@ class Game(object):
         self.winner = None
         self.turn = 'X' if self.turn == 'O' else 'O'
 
+
 class Network(Neural):
+    """."""
 
     def get_inputs(self, board, turn):
-        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0]
+        """."""
+        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
                 inputs[i * 2] = 1
@@ -64,6 +71,7 @@ class Network(Neural):
         return inputs
 
     def get_move(self, game):
+        """Get a move."""
         largest = float('-inf')
         top = []
         stored_board = game.board
@@ -85,7 +93,6 @@ class Network(Neural):
                 top.append(move)
         # print(top)
         return top[0]
-
 
 
 class Individual(object):
