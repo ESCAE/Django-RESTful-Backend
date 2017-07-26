@@ -256,7 +256,7 @@ class Genetic(object):
 #     """Docstring for ClassName."""
 
 #     def __init__(self, id, individuals):
-#         """.""" 
+#         """."""
 #         self.id = id or 0
 #         self.individuals = individuals
 
