@@ -30,9 +30,9 @@ class Neural(object):
             except (IndexError, AttributeError):
                 node.threshold = 1
             try:
-                node.weights = map(
+                node.weights = list(map(
                     lambda x: x, layers[layerindex][nodeindex].weights
-                )
+                ))
             except (IndexError, AttributeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
                 # node.weights = [sizes[layerindex + 1]]
@@ -163,9 +163,9 @@ class Neural(object):
         }
 
     def _import(self, data):
-        net = Neural(self.get_sizes(data.thresholds))
-        net._set_thresholds(data.thresholds)
-        net._set_weights(data.weights)
+        net = Neural(self.get_sizes(data['thresholds']))
+        net._set_thresholds(data['thresholds'])
+        net._set_weights(data['weights'])
         return net
 
 
