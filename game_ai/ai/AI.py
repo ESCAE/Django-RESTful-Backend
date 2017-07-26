@@ -179,6 +179,6 @@ class Neural(object):
         """Clone the beast."""
         return Neural(self.layers)
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     test = Neural([2, 3, 2])
     print(test.run([3, 3]))

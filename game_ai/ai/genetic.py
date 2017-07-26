@@ -1,12 +1,16 @@
 """The manipulation file for AI.py."""
-from tic_tack import directory, new_board, greedy_bot
-from AI import Neural, Node
+from AI import Neural
+from AI import Node
 from math import floor
 import random
+from tic_tack import directory
+from tic_tack import greedy_bot
+from tic_tack import new_board
 
-    #Found Issues
-    #**********************************
-    #1. 214 randomize, param net is a list. list does not have the attribute of 'each_node'. Maybe solved with line 114.
+# Found Issues
+# **********************************
+# 1. 214 randomize, param net is a list. list does not have the attribute
+# of 'each_node'. Maybe solved with line 114.
 
 
 class Game(object):
@@ -50,10 +54,13 @@ class Game(object):
         self.winner = None
         self.turn = 'X' if self.turn == 'O' else 'O'
 
+
 class Network(Neural):
+    """."""
 
     def get_inputs(self, board, turn):
-        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0]
+        """."""
+        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
                 inputs[i * 2] = 1
@@ -64,6 +71,7 @@ class Network(Neural):
         return inputs
 
     def get_move(self, game):
+        """Get a move."""
         largest = float('-inf')
         top = []
         stored_board = game.board
@@ -87,7 +95,6 @@ class Network(Neural):
         return top[0]
 
 
-
 class Individual(object):
     """Represent a individual neural net."""
 
@@ -101,11 +108,15 @@ class Individual(object):
         self.SCORE_MAX = 4298
 
     def compare_to(self, other):
-        """A self referencing compare call to a given individual."""
+        """Referencing compare call self to a given individual."""
         return self.compare(self, other)
 
     def evaluate_one(self, board_dict):
-        """A scoring/comparision function that will take a game board and evaluate any given game move decision against Greedy Bot."""
+        """Compare scoring function.
+
+        that will take a game board and evaluate any
+        given game move decision against Greedy Bot.
+        """
         game = Game(board_dict['board'])
         board_list = []
         for x in game.board:
@@ -120,7 +131,7 @@ class Individual(object):
             return False
 
     def evaluate(self):
-        """An overarching function that will test all non-ended condition boards against an individual neural network."""
+        """Test non-ended condition boards against individual neural net."""
         test_boards = self.generate_test_boards()
         self.score = 0
         failed_depth = -1
@@ -135,7 +146,9 @@ class Individual(object):
                 filler_list.append(False)
         self.age = len(test_boards) if failed_depth < 0 else failed_depth
 
-    def generate_test_boards(self, boards=[[] for i in range(8)], visited={}, game=None):
+    def generate_test_boards(
+        self, boards=[[] for i in range(8)], visited={}, game=None
+    ):
         """Make some test boards."""
         boards = boards
         visited = visited
@@ -152,7 +165,7 @@ class Individual(object):
                 'board': game.board,
                 'Right_moves': None
             })
-        except:
+        except Exception:  # need specific exception
             pass
         visited[game.board] = True
 
@@ -169,11 +182,11 @@ class Individual(object):
         return a.score - b.score
 
     def compare_descending(self, a, b):
-        """Compare two individual Neurals by age or score in the opposite order."""
+        """Compare two Nets by age or score in the opposite order."""
         return self.compare(b, a)
 
     def clone(self, id):
-        """Take an Individual class instance and create a new instance based of the given instance."""
+        """Clone the instance."""
         return Individual(id, self.net.clone())
 
     def heads(self):
@@ -181,13 +194,16 @@ class Individual(object):
         return random.random() < 0.5
 
     def splice(self, dest, source):
-        """Check if the dest and source networks are the same. If not run a splice callback on each node of the dest network."""
+        """Check if the dest and source networks are the same.
+
+        If not run a splice callback on each node of the dest network.
+        """
         if dest == source:
             return
         dest.each_node(False, self._splice_callback(), source)
 
     def _splice_callback(self, node, layer_index, index, nodes, source):
-        """Use the heads function to simulate a 50/50 on setting new thresholds and weights."""
+        """Use the heads function get a 50/50 on new thresholds and weights."""
         if self.heads():
             node.threshold = source.node[layer_index][index].threshold
         for i in range(len(node.weights)):
@@ -195,13 +211,16 @@ class Individual(object):
                 node.weights[i] = source.nodes[layer_index][index].weights[i]
 
     def reproduce(self, id, other):
-        """Clone a given individual network from that 'child' run the splice function with the child and another individual network."""
+        """Clone a given individual network from that 'child'.
+
+        run the splice function with the child and another individual network.
+        """
         child = self.clone(self.id)
         self.splice(child.net, other.net)
         return child
 
     def real_rand(self, minimum, maximum):
-        """Return a random real number with a given min and max to influence."""
+        """Return a rand real number with a given min and max to influence."""
         return random.random() * (maximum - minimum) + minimum
 
     def int_rand(self, minimum, maximum):
@@ -219,49 +238,63 @@ class Individual(object):
         net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
         return net
 
-    def _randomize_callback(self, node, i, j, nodes, modify_chance, min_thresh, max_thresh, min_weight, max_weight):
-        """Call's the randomize value for a given node's threshold and weights with set min and max."""
-        node.threshold = self.randomize_value(node.threshold, modify_chance, min_thresh, max_thresh)
+    def _randomize_callback(
+        self, node, i, j, nodes, modify_chance, min_thresh,
+        max_thresh, min_weight, max_weight
+    ):
+        """Call the randomize value for a given node's threshold and weights.
+
+        with set min and max.
+        """
+        node.threshold = self.randomize_value(
+            node.threshold, modify_chance, min_thresh, max_thresh
+        )
         for i in range(len(node.weights)):
-            node.weights[i] = self.randomize_value(node.weights[i], modify_chance, min_weight, max_weight)
+            node.weights[i] = self.randomize_value(
+                node.weights[i], modify_chance, min_weight, max_weight
+            )
 
     def new_random(self, id, sizes):
-        """."""
+        """Return New Random."""
         return Individual(id, self.randomize(Neural(sizes), 1))
 
     def mutate(self, mutation_rate=0.05):
-        """A method that allows for a mutation to be performed on the current instance of the Individual."""
+        """Mutation the current instance of the Individual."""
         self.randomize(self.net, mutation_rate)
         return self
 
     def export(self):
         """Export a individual network, in dictionary form."""
-        return {'id': self.id, 'net': self.net.export() }
+        return {'id': self.id, 'net': self.net.export()}
 
     def ind_import(self, data):
+        """."""
         id = data['id']
         net = Neural._import(data['net'])
         sizes = net.get_sizes()
         if len(sizes) < 1 or sizes[0] != 18 or sizes[-1] != 1:
-            raise ValueError('Please import object with 18 input nodes and 1 output node.')
+            raise ValueError(
+                'Please import object with 18 input nodes and 1 output node.'
+            )
         return Individual(id, net)
+
 
 class Generation(object):
     """Generation."""
 
     def __init__(self, individuals, id=0):
-        """.""" 
+        """."""
         self.id = id
         self.individuals = individuals
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        for individual in individuals:
+        for individual in self.individuals:
             individual.evaluate()
 
     def order(self):
         """."""
-        for i in range((len(individuals) - 1), 0, -1):
+        for i in range((len(self.individuals) - 1), 0, -1):
             floor()
         pass
 
@@ -278,11 +311,15 @@ class Generation(object):
         old_individuals = self.individuals
         new_individuals = []
         for i in range(clones):
-            new_individuals.append(old_individuals[i].clone(len(new_individuals)))
+            new_individuals.append(
+                old_individuals[i].clone(len(new_individuals))
+            )
         while len(new_individuals) < len(old_individuals):
             a = self.select(old_individuals)
             b = self.select(old_individuals)
-            new_individuals.append(a.reproduce(len(new_individuals), b).mutate())
+            new_individuals.append(
+                a.reproduce(len(new_individuals), b).mutate()
+            )
         return Generation(new_individuals, id)
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
@@ -296,22 +333,25 @@ class Generation(object):
             individuals[i] = Individual().new_random(i, sizes)
         return Generation(individuals, id)
 
-    def export(self, chunk={'index':0, 'total':1}):
+    def export(self, chunk={'index': 0, 'total': 1}):
         """."""
         return {
             'id': self.id,
-            'individuals': list(map(lambda individual: individual.export(), self.individuals))
+            'individuals': list(
+                map(lambda individual: individual.export(), self.individuals)
+            )
         }
 
     def gen_import(self, data):
         """."""
         id = data['id']
-        individuals = data['individuals']
-        return Generation(list(map(lambda individual: individual.ind_import(), self.individuals)), id)
+        self.individuals = data['individuals']
+        return Generation(list(map(
+            lambda individual: individual.ind_import(), self.individuals
+        )), id)
 
 
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     # test = Individual(-1, [18,27,9])
     # test.evaluate()
     # print('test score:',test.score)
@@ -322,4 +362,3 @@ if __name__ == "__main__":
     for i in range(len(test.individuals)):
         print(i)
         test.individuals[i].evaluate()
-
