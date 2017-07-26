@@ -1,3 +1,3 @@
-import AI
-import genetic
-import tic_tack
+import ai.AI
+import ai.genetic
+import ai.tic_tack

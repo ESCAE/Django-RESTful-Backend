@@ -360,6 +360,13 @@ class Generation(object):
         )), id)
 
 
+test = Generation([])
+test = test.new_random(20)
+for i in range(20):
+    test.run()
+    test = test.next(.5, 3)
+
+
 if __name__ == "__main__":  # pragma: no cover
     # test = Individual(-1, [18,27,9])
     # test.evaluate()
