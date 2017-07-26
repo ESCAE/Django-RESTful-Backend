@@ -80,4 +80,12 @@ class GeneticTests(TestCase):
     def test_generate_test_boards(self):
         """Gen test boards does."""
         self.assertEqual(len(self.gen.test_boards), 8)
-        # import pdb; pdb.set_trace()
+
+    def test_run_runs(self):
+        """Gen will run."""
+        test = self.gen
+        test = test.new_random(1)
+        for i in range(1):
+            test.run()
+            test2 = test.next(.3, 1)
+        self.assertNotEqual(test, test2)
