@@ -72,3 +72,9 @@ class GeneticTests(TestCase):
     #     game = self.game
     #     move = self.network.get_move(game)
     #     import pdb; pdb.set_trace()
+
+    # ============ Iindividual tests =============== #
+
+    # ============ Generation tests =============== #
+
+    
