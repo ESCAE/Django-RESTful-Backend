@@ -102,74 +102,111 @@ def new_board_bot(board, move, chariter='X'):
     output[move] = chariter
     return output
 
-
-def greedy_bot(board):
+def greedy_bot(board, my_bot = 'O'):
     wins = []
     count = 0
+    if my_bot == 'O':
+        my_plyer = 'X'
+    else:
+        my_plyer = 'O'
     for p in range(len(board)):
         count += 1
         if board[p] == ' ':
-            newboard_0 = new_board_bot(board, p, 'O')
-            if winner(newboard_0, 'O')[0] is False:
+            newboard_0 = new_board_bot(board, p, my_bot)
+            if winner(newboard_0, my_bot)[0] is False and my_bot == 'O' :
+                return p
+            elif winner(newboard_0, my_bot)[0] is True and my_bot == 'X' :
                 return p
     for a in range(len(board)):
         count += 1
         wins.append(-1)
         if board[a] == ' ':
             wins[a] = 0
-            newboard_0 = new_board_bot(board, a, 'O')
-            if winner(newboard_0, 'O')[0] is False:
+            newboard_0 = new_board_bot(board, a, my_bot)
+            if winner(newboard_0, my_bot)[0] is False and my_bot == 'O' :
+                return a
+            elif winner(newboard_0, my_bot)[0] is True and my_bot == 'X' :
                 return a
             for s in range(len(board)):
                 count += 1
                 if newboard_0[s] == ' ':
-                    newboard_1 = new_board_bot(newboard_0, s, 'X')
-                    if winner(newboard_1, 'X')[0]:
+                    newboard_1 = new_board_bot(newboard_0, s, my_plyer)
+                    if winner(newboard_1, my_plyer)[0] is False and my_plyer == 'O' :
+                        return s
+                    elif winner(newboard_1, my_plyer)[0] is True and my_plyer == 'X' :
                         return s
                     for d in range(len(board)):
                         count += 1
                         if newboard_1[d] == ' ':
-                            newboard_2 = new_board_bot(newboard_1, d, 'O')
-                            if winner(newboard_2, 'O')[0] is False:
+                            newboard_2 = new_board_bot(newboard_1, d, my_bot)
+                            if winner(newboard_2, my_bot)[0] is False and my_bot == 'O' :
                                 wins[a] += 1
+                                break
+                            elif winner(newboard_2, my_bot)[0] is True and my_bot == 'X' :
+                                wins[a] += 1
+                                break
                             else:
                                 for f in range(len(board)):
                                     count += 1
                                     if newboard_2[f] == ' ':
-                                        newboard_3 = new_board_bot(newboard_2, f, 'X')
-                                        if winner(newboard_3, 'X')[0]:
+                                        newboard_3 = new_board_bot(newboard_2, f, my_plyer)
+                                        if winner(newboard_3, my_plyer)[0] is False and my_plyer == 'O' :
                                             wins[a] -= 1
+                                            break
+                                        elif winner(newboard_3, my_plyer)[0] is True and my_plyer == 'X' :
+                                            wins[a] -= 1
+                                            break
                                         else:
                                             for g in range(len(board)):
                                                 count += 1
                                                 if newboard_3[g] == ' ':
-                                                    newboard_4 = new_board_bot(newboard_3, g, 'O')
-                                                    if winner(newboard_4, 'O')[0] is False:
+                                                    newboard_4 = new_board_bot(newboard_3, g, my_bot)
+                                                    if winner(newboard_4, my_bot)[0] is False and my_bot == 'O' :
                                                         wins[a] += 1
+                                                        break
+                                                    elif winner(newboard_4, my_bot)[0] is True and my_bot == 'X' :
+                                                        wins[a] += 1
+                                                        break
                                                     else:
                                                         for q in range(len(board)):
                                                             if newboard_4[q] == ' ':
-                                                                newboard_5 = new_board_bot(newboard_4, q, 'X')
-                                                                if winner(newboard_5, 'X')[0]:
+                                                                newboard_5 = new_board_bot(newboard_4, q, my_plyer)
+                                                                if winner(newboard_5, my_plyer)[0] is False and my_plyer == 'O' :
                                                                     wins[a] -= 1
+                                                                    break
+                                                                elif winner(newboard_5, my_plyer)[0] is True and my_plyer == 'X' :
+                                                                    wins[a] -= 1
+                                                                    break
                                                                 else:
                                                                     for w in range(len(board)):
                                                                         if newboard_5[w] == ' ':
-                                                                            newboard_6 = new_board_bot(newboard_5, w, 'O')
-                                                                            if winner(newboard_6, 'O')[0] is False:
+                                                                            newboard_6 = new_board_bot(newboard_5, w, my_bot)
+                                                                            if winner(newboard_6, my_bot)[0] is False and my_bot == 'O' :
                                                                                 wins[a] += 1
+                                                                                break
+                                                                            elif winner(newboard_6, my_bot)[0] is True and my_bot == 'X' :
+                                                                                wins[a] += 1
+                                                                                break
                                                                             else:
                                                                                 for e in range(len(board)):
                                                                                     if newboard_6[e] == ' ':
-                                                                                        newboard_7 = new_board_bot(newboard_6, e, 'X')
-                                                                                        if winner(newboard_7, 'X')[0]:
+                                                                                        newboard_7 = new_board_bot(newboard_6, e, my_plyer)
+                                                                                        if winner(newboard_7, my_plyer)[0] is False and my_plyer == 'O' :
                                                                                             wins[a] -= 1
+                                                                                            break
+                                                                                        elif winner(newboard_7, my_plyer)[0] is True and my_plyer == 'X' :
+                                                                                            wins[a] -= 1
+                                                                                            break
                                                                                         else:
                                                                                             for r in range(len(board)):
                                                                                                 if newboard_7[r] ==  ' ':
-                                                                                                    newboard_8 = new_board_bot(newboard_7, r, 'O')
-                                                                                                    if winner(newboard_8, 'O')[0] is False:
+                                                                                                    newboard_8 = new_board_bot(newboard_7, r, my_bot)
+                                                                                                    if winner(newboard_8, my_bot)[0] is False and my_bot == 'O' :
                                                                                                         wins[a] += 1
+                                                                                                        break
+                                                                                                    elif winner(newboard_8, my_bot)[0] is True and my_bot == 'X' :
+                                                                                                        wins[a] += 1
+                                                                                                        break
     the_max = float('-inf')
     total = 0
     for x in range(len(wins)):
