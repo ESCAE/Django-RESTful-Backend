@@ -381,7 +381,6 @@ class Generation(object):
         self.tag = tag
         self.individuals = individuals
 
-
     def generate_test_boards(
         self, boards=[[] for i in range(8)], visited={}, game=None
     ):
@@ -441,7 +440,6 @@ class Generation(object):
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        self.test_boards = self.generate_test_boards()
         # print('running generation', self.tag)
         self.test_boards = self.generate_test_boards()
         for individual in self.individuals:
@@ -465,7 +463,6 @@ class Generation(object):
 
     def next(self, mutation_rate=0.05, clones=0, tag=-1):
         """."""
-        old_best = self.individuals[0]
         self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
         # print('+++++++++++++')
         # print('Generation: ', self.tag)
@@ -547,10 +544,9 @@ if __name__ == "__main__":  # pragma: no cover
     test = Generation([])
     test = test.new_random(20)
     for i in test.individuals:
-        print(i.age)
         while i.age != 8:
             test.run()
-            test = test.next(.65, 5)
+            test = test.next(.65, 10)
     with open('testpickle', 'wb') as fp:
         pickle.dump(test.export(), fp)
     with open('testpickle', 'rb') as fp:
@@ -574,7 +570,7 @@ if __name__ == "__main__":  # pragma: no cover
             break
         # board_list = []
         # for x in game.board:
-        #     board_list.append(x)                
+        #     board_list.append(x)
         # game.move(game.board, b(board_list, game.turn))
         game.move(game.board, b.net.get_move(game))
         print('------')
@@ -592,7 +588,7 @@ if __name__ == "__main__":  # pragma: no cover
     while True:
         # board_list = []
         # for x in game.board:
-        #     board_list.append(x)                
+        #     board_list.append(x)
         # game.move(game.board, b(board_list, game.turn))
         game.move(game.board, b.net.get_move(game))
         print('------')
@@ -611,22 +607,21 @@ if __name__ == "__main__":  # pragma: no cover
         print('|', game.board[6:9], '|')
         print('------')
         if game.winner is not None:
-          break
+            break
         if ' ' not in game.board:
             break
-    buckets ={
-    0:0,
-    1:0,
-    2:0,
-    3:0,
-    4:0,
-    5:0,
-    6:0,
-    7:0,
-    8:0,
+    buckets = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
+        7: 0,
+        8: 0,
     }
     for i in test.individuals:
         game = Game()
         buckets[i.net.get_move(game)] += 1
     print(buckets)
-
