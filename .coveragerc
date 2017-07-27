@@ -5,10 +5,9 @@ omit =
     manage.py
     game_ai/wsgi.py
     */settings.py
-    */app.py
+    */apps.py
 
 source =
-    bot
     ai
     game_api
 

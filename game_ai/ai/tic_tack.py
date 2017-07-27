@@ -1,29 +1,15 @@
 from random import randint
-
-
-#def make_board(board):
-  #  mid_line = '------\n'
-    #output = ''
-   # for x in range(9):
-     #   if board[x] not in ['X', 'O']:
-        #    output += ' '
-        #else:
-          #  output += board[x]
-        #if x in [2, 5]:
-          #  output += '\n'
-            #output += mid_line
-        #elif x != 8:
-          #  output += '|'
-   # print(output)
-
+#import NN
 
 def check_move(board, move):
+    """makes sure the the move is vaild"""
     if board[move] == ' ':
         return True
     return False
 
 
 def winner(board, player):
+    """checks if there is a win condition"""
     if board[0] == player and board[1] == player and board[2] == player:
         if player == 'X':
             return (True, [0, 1, 2])
@@ -61,6 +47,7 @@ def winner(board, player):
 
 
 def new_board(board, move, chariter='X', flag=0):
+    """makes a new board for the game"""
     output = []
     output_send = {'board': '', 'move': move, 'WL': None, 'Wline': None}
     output_str = ''
@@ -80,7 +67,8 @@ def new_board(board, move, chariter='X', flag=0):
     return output_send
 
 
-def directory(board, move):
+def directory(board, move, NN=0):
+    """middle man for the front end and the NN"""
     board_list = []
     for x in board:
         board_list.append(x)
@@ -90,19 +78,28 @@ def directory(board, move):
     board_list = []
     for x in board_dic['board']:
         board_list.append(x)
-    greedy_move = greedy_bot(board_list)
+    if NN == 0:
+        greedy_move = greedy_bot(board_list)
+    elif NN == 1:
+        greedy_move = dumb_bot(board_list)
+    elif NN == 3:
+        #greedy_move = NN
+        pass
     board_dic = new_board(board_list, greedy_move ,'O')
     return board_dic
 
 
 def new_board_bot(board, move, chariter='X'):
+    """makes a new board for the bot"""
     output = []
     for x in board:
         output.append(x)
     output[move] = chariter
     return output
 
+
 def greedy_bot(board, my_bot = 'O'):
+    """makes a move based the the most wins"""
     wins = []
     count = 0
     if my_bot == 'O':
@@ -217,58 +214,10 @@ def greedy_bot(board, my_bot = 'O'):
 
 
 def dumb_bot(board):
+    """makes a random move"""
     while True:
         move = randint(0, 8)
         if board[move] == ' ':
             break
     return move
-
-
-#def play_game():
-    #board = [' ', ' ', ' ', ' ', ' ',  ' ', ' ',  ' ',  ' ']
-    #player = randint(1, 2)
-    #want_bot = 'Y'
-    #move = ''
-    #if want_bot == 'Y':
-        #want_bot = True
-    #else:
-        #want_bot = False
-    #turn = 0
-    #while True:
-        #turn += 1
-        #if want_bot and player == 1:
-            #while True:
-                #output = 'It is player ' + str(player) + ' turn enter a move'
-                #move = input(output)
-                #if check_move(board, int(move)):
-                    #break
-                #print('Move is not vaild, please enter a vaild move ')
-        #else:
-            #move = greedy_bot(board)
-        #if player == 1:
-            #board[int(move)] = 'X'
-        #else:
-            #board[int(move)] = 'O'
-        #if player == 1:
-            #if winner(board, 'X'):
-                #make_board(board)
-                #output = 'player ' + str(player) + ' has won'
-                #print(output)
-                #break
-        #else:
-            #if winner(board, 'O'):
-                #make_board(board)
-                #output = 'player ' + str(player) + ' has won'
-                #print(output)
-                #break
-
-        #make_board(board)
-        #print('\n')
-        #if player == 1:
-            #player = 2
-        #else:
-            #player = 1
-        #if turn == 9:
-            #print('It is a tie, nobody wins')
-            #break
 

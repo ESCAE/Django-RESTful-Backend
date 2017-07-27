@@ -15,9 +15,11 @@ Including another URLconf
 
 """
 from django.conf.urls import url
-from game_api.views import bot_play
+from game_api.views import bot_play, bot_play_2, bot_play_1
 
 
 urlpatterns = [
     url(r'^bot/$', bot_play, name='bot'),
+    url(r'^bot/neural/$', bot_play_2, name='bot2'),
+    url(r'^bot/dumb/$', bot_play_1, name='bot1'),
 ]
