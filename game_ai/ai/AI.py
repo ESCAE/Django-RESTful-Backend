@@ -25,9 +25,13 @@ class Neural(object):
         sizes = []
         layers = []
         if type(sizesornodes[0]) == list:
+            # print(sizesornodes[0])
+            # sizesornodes[0] = [0] * 18
+            # sizesornodes[len(sizesornodes)-1] = 1
             sizes = self.get_sizes(sizesornodes)
             layers = sizesornodes
         else:
+
             sizes = sizesornodes
         for i in range(len(sizes)):
             self.layers.append([])

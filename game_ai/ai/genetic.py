@@ -61,7 +61,7 @@ class Network(Neural):
 
     def get_inputs(self, board, turn):
         """."""
-        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        inputs = [0] * 18
         for i in range(len(board)):
             if board[i] == turn:
                 inputs[i * 2] = 1
@@ -121,11 +121,6 @@ class Individual(object):
                 b.score += 1
                 break
             game.move(game.board, a.net.get_move(game))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
                 a.score += 2
                 b.score -= 2
@@ -135,11 +130,6 @@ class Individual(object):
                 b.score += 1
                 break
             game.move(game.board, b.net.get_move(game))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
                 b.score += 2
                 a.score -= 2
@@ -154,11 +144,6 @@ class Individual(object):
                 a.score += 9
                 break
             game.move(game.board, a.net.get_move(game))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
                 a.score += 20
                 break
@@ -169,11 +154,6 @@ class Individual(object):
             for x in game.board:
                 board_list.append(x)                
             game.move(game.board, b(board_list, game.turn))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
                 a.score += 9 - game.board.count(' ')
                 break
@@ -286,6 +266,22 @@ class Individual(object):
             v += self.real_rand(min_perturb, max_perturb)
         return v
 
+    def new_randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
+        if self.heads():
+            del net.layers[-1]
+            net.layers.append([[0] * 9])
+            net.layers.append([])
+        elif self.heads():
+            del net.layers[-1]
+        for i in net.layers[1:-1]:
+            if self.heads():
+                i.append([0] * 9)
+            elif self.heads():
+                i = i[:-8]
+        new = Network(net.layers)
+        new.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
+        pass
+
     def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
         """The randomize method grabs each node in a neural net and uses the randomize callback."""
         net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
@@ -313,7 +309,7 @@ class Individual(object):
 
     def mutate(self, mutation_rate=0.05):
         """Mutation the current instance of the Individual."""
-        self.randomize(self.net, mutation_rate)
+        self.new_randomize(self.net, mutation_rate)
         return self
 
     def export(self):
@@ -386,18 +382,18 @@ class Generation(object):
     def run_versus_greedy_bot(self):
         """."""
         for i in range(len(self.individuals)):
-            print(i)
             self.individuals[i].evaluate_versus_greedy_bot()
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        print('running generation', self.id)
+        # print
+        ('running generation', self.id)
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
-            print('---------')
-            print('Network ID:', individual.id)
-            print('Network Score:', individual.score)
-            print('Network Age:', individual.age)
+            # print('---------')
+            # print('Network ID:', individual.id)
+            # print('Network Score:', individual.score)
+            # print('Network Age:', individual.age)
 
     def order(self):
         """."""
@@ -417,6 +413,7 @@ class Generation(object):
         print('+++++++++++++')
         print('Generation: ', self.id)
         print('High Score:', self.individuals[0].score)
+        print('High SIZE:', self.individuals[0].net.get_sizes(self.individuals[0].net.layers))
         print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
         print('+++++++++++++')
@@ -467,60 +464,9 @@ class Generation(object):
 
 
 if __name__ == "__main__":  # pragma: no cover
+    import sys, os
     test = Generation([])
     test = test.new_random(10)
     for i in range(500):
         test.run_versus_self()
         test = test.next(.65, 2)
-    game = Game()
-    a = test.individuals[0]
-    b = test.individuals[1]
-    while True:
-        if ' ' not in game.board:
-            break
-        game.move(game.board, a.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            a.score += 1
-            break
-        if ' ' not in game.board:
-            break
-        game.move(game.board, b.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            b.score += 1
-            break
-    game = Game()
-    a = test.individuals[1]
-    b = test.individuals[0]
-    while True:
-        if ' ' not in game.board:
-            break
-        game.move(game.board, a.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            a.score += 1
-            break
-        if ' ' not in game.board:
-            break
-        game.move(game.board, b.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            b.score += 1
-            break
