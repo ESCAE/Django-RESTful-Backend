@@ -1,14 +1,9 @@
 """The manipulation file for AI.py."""
 from ai.AI import Neural
-<<<<<<< HEAD
 from ai.AI import Node
 from math import floor
 import random
 from ai.tic_tack import directory
-=======
-from math import floor
-import random
->>>>>>> 7e0a8af7fb26721510fcd8179eed5edbcc54f2a4
 from ai.tic_tack import greedy_bot
 from ai.tic_tack import new_board
 from operator import attrgetter
@@ -112,6 +107,7 @@ class Individual(object):
         return self.compare(self, other)
 
     def evaluate_versus(self, other):
+        """."""
         game = Game()
         a = self
         b = other
@@ -136,6 +132,7 @@ class Individual(object):
                 break
 
     def evaluate_versus_greedy_bot(self):
+        """."""
         game = Game()
         a = self
         b = greedy_bot
@@ -318,9 +315,10 @@ class Individual(object):
 
     def ind_import(self, data):
         """."""
-        tag = data['tag']
-        net = Neural._import(data['net'])
-        sizes = net.get_sizes()
+        id = data['id']
+        net = Network([1, 1])
+        net = Network(net._import(data['net']).layers)
+        sizes = net.get_sizes(net.layers)
         if len(sizes) < 1 or sizes[0] != 18 or sizes[-1] != 1:
             raise ValueError(
                 'Please import object with 18 input nodes and 1 output node.'
@@ -371,6 +369,7 @@ class Generation(object):
         return boards
 
     def run_versus_self(self):
+        """."""
         for a in self.individuals:
             for b in self.individuals:
                 if a != b and a not in b.seen_list and b not in a.seen_list:
@@ -472,23 +471,31 @@ class Generation(object):
 
     def gen_import(self, data):
         """."""
-        tag = data['tag']
-        self.individuals = data['individuals']
-        return Generation(list(map(
-            lambda individual: individual.ind_import(), self.individuals
-        )), tag)
-
+        id = data['id']
+        individuals = list(map(
+            lambda individual: self.individuals[0].ind_import(individual),
+            data['individuals']
+        ))
+        # import pdb; pdb.set_trace()
+        return Generation(individuals, id)
 
 
 if __name__ == "__main__":  # pragma: no cover
+    """."""
+    import pickle
     test = Generation([])
-    test = test.new_random(10)
-    for i in range(500):
+    test = test.new_random(4)
+    for i in range(2):
         test.run_versus_self()
-        test = test.next(.65, 2)
+        test = test.next(.05, 2)
+    with open('testpickle', 'wb') as fp:
+        pickle.dump(test.export(), fp)
+    with open('testpickle', 'rb') as fp:
+        imported = test.gen_import(pickle.load(fp))
     game = Game()
-    a = test.individuals[0]
-    b = test.individuals[1]
+    a = imported.individuals[0]
+    b = imported.individuals[1]
+    # import pdb; pdb.set_trace()
     while True:
         if ' ' not in game.board:
             break
