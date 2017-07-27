@@ -374,12 +374,13 @@ class Generation(object):
     def run(self):
         """Run evaluate for every individual network in a Generation."""
         # print('running generation', self.tag)
+        self.test_boards = self.generate_test_boards()
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
-            # print('---------')
-            # print('Network ID:', individual.tag)
-            # print('Network Score:', individual.score)
-            # print('Network Age:', individual.age)
+            print('---------')
+            print('Network ID:', individual.tag)
+            print('Network Score:', individual.score)
+            print('Network Age:', individual.age)
 
     def order(self):
         """."""
@@ -473,10 +474,12 @@ if __name__ == "__main__":  # pragma: no cover
     """."""
     import pickle
     test = Generation([])
-    test = test.new_random(4)
-    for i in range(2):
-        test.run_versus_self()
-        test = test.next(.05, 2)
+    test = test.new_random(20)
+    for i in test.individuals:
+        print(i.age)
+        while i.age != 8:
+            test.run()
+            test = test.next(.65, 5)
     with open('testpickle', 'wb') as fp:
         pickle.dump(test.export(), fp)
     with open('testpickle', 'rb') as fp:
@@ -484,7 +487,6 @@ if __name__ == "__main__":  # pragma: no cover
     game = Game()
     a = imported.individuals[0]
     b = imported.individuals[1]
-    # import pdb; pdb.set_trace()
     while True:
         if ' ' not in game.board:
             break
