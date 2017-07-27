@@ -38,8 +38,8 @@ def winner(board, player):
         return (False, [0, 4, 8])
     if board[1] == player and board[4] == player and board[7] == player:
         if player == 'X':
-            return (True, [0, 4, 7])
-        return (False, [0, 4, 7])
+            return (True, [1, 4, 7])
+        return (False, [1, 4, 7])
     if board[2] == player and board[5] == player and board[8] == player:
         if player == 'X':
             return (True, [2, 5, 8])

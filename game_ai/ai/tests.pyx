@@ -1,5 +1,5 @@
 from django.test import TestCase
-from bot import tic_tack
+from ai import tic_tack
 
 
 # Create your tests here.
