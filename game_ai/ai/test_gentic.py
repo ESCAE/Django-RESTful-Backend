@@ -167,3 +167,4 @@ class GeneticTests(TestCase):
                     self.assertTrue(
                         gen_node.weights == imported_node.weights
                     )
+
