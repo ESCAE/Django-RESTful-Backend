@@ -1,9 +1,14 @@
 """The manipulation file for AI.py."""
 from ai.AI import Neural
+<<<<<<< HEAD
 from ai.AI import Node
 from math import floor
 import random
 from ai.tic_tack import directory
+=======
+from math import floor
+import random
+>>>>>>> 7e0a8af7fb26721510fcd8179eed5edbcc54f2a4
 from ai.tic_tack import greedy_bot
 from ai.tic_tack import new_board
 from operator import attrgetter
@@ -43,15 +48,9 @@ class Game(object):
         self.board = next_board['board']
         self.winner = next_board['WL']
         self.turn = 'X' if self.turn == 'O' else 'O'
-        # self.board = self.board[:next_board['move']] + 'O' + self.board[next_board['move'] + 1:]
-        # if self.winner is True:
-        #     return
-        # self.history.append(self.board)
 
     def undo(self):
         """Undo a move."""
-        # if len(self.history) > 1:
-        #     self.history.pop()
         self.board = self.history.pop()
         self.winner = None
         self.turn = 'X' if self.turn == 'O' else 'O'
@@ -97,9 +96,9 @@ class Network(Neural):
 class Individual(object):
     """Represent a individual neural net."""
 
-    def __init__(self, id=-1, net=None):
+    def __init__(self, tag=-1, net=None):
         """."""
-        self.id = id
+        self.tag = tag
         self.net = net
         self.age = float('-inf')
         self.score = 0
@@ -118,26 +117,22 @@ class Individual(object):
         b = other
         while True:
             if ' ' not in game.board:
+                a.score += 1
+                b.score += 1
                 break
             game.move(game.board, a.net.get_move(game))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
-                a.score += 1
+                a.score += 2
+                b.score -= 2
                 break
             if ' ' not in game.board:
+                a.score += 1
+                b.score += 1
                 break
             game.move(game.board, b.net.get_move(game))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
-                b.score += 1
+                b.score += 2
+                a.score -= 2
                 break
 
     def evaluate_versus_greedy_bot(self):
@@ -230,9 +225,9 @@ class Individual(object):
         """Compare two Nets by age or score in the opposite order."""
         return self.compare(b, a)
 
-    def clone(self, id):
+    def clone(self, tag):
         """Clone the instance."""
-        return Individual(id, self.net)
+        return Individual(tag, self.net)
 
     def heads(self):
         """Return a 50/50 True/False."""
@@ -258,13 +253,13 @@ class Individual(object):
                 node.weights[i] = source.layers[layer_index][index].weights[i]
 
 
-    def reproduce(self, id, other):
+    def reproduce(self, tag, other):
         """Clone a given individual network from that 'child'.
 
         run the splice function with the child and another individual network.
         """
         new = self.splice(self.net, other.net)
-        child = Individual(id, new)
+        child = Individual(tag, new)
         return child
 
     def real_rand(self, minimum, maximum):
@@ -308,9 +303,9 @@ class Individual(object):
                 node.weights[i], modify_chance, min_weight, max_weight
             )
 
-    def new_random(self, id, sizes):
+    def new_random(self, tag, sizes):
         """Return New Random."""
-        return Individual(id, self.randomize(Network(sizes), 1))
+        return Individual(tag, self.randomize(Network(sizes), 1))
 
     def mutate(self, mutation_rate=0.05):
         """Mutation the current instance of the Individual."""
@@ -319,26 +314,26 @@ class Individual(object):
 
     def export(self):
         """Export a individual network, in dictionary form."""
-        return {'id': self.id, 'net': self.net.export()}
+        return {'tag': self.tag, 'net': self.net.export()}
 
     def ind_import(self, data):
         """."""
-        id = data['id']
+        tag = data['tag']
         net = Neural._import(data['net'])
         sizes = net.get_sizes()
         if len(sizes) < 1 or sizes[0] != 18 or sizes[-1] != 1:
             raise ValueError(
                 'Please import object with 18 input nodes and 1 output node.'
             )
-        return Individual(id, net)
+        return Individual(tag, net)
 
 
 class Generation(object):
     """Generation."""
 
-    def __init__(self, individuals, id=0):
+    def __init__(self, individuals, tag=0):
         """."""
-        self.id = id
+        self.tag = tag
         self.individuals = individuals
         self.test_boards = self.generate_test_boards()
 
@@ -392,11 +387,11 @@ class Generation(object):
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        print('running generation', self.id)
+        print('running generation', self.tag)
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
             print('---------')
-            print('Network ID:', individual.id)
+            print('Network ID:', individual.tag)
             print('Network Score:', individual.score)
             print('Network Age:', individual.age)
 
@@ -416,41 +411,60 @@ class Generation(object):
         """."""
         self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
         print('+++++++++++++')
-        print('Generation: ', self.id)
+        print('Generation: ', self.tag)
         print('High Score:', self.individuals[0].score)
         print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
         print('+++++++++++++')
         if id < 0:
-            id = self.id + 1
+            id = self.tag + 1
         old_individuals = self.individuals
         new_individuals = []
         for i in range(clones):
             new_individuals.append(
                 old_individuals[i].clone(len(new_individuals))
             )
+        high_scores = sorted(self.individuals, key=attrgetter('score'))[::-1]
+        age_one = self.individuals[0]
+        age_two = self.individuals[1]
+        score_two = None
+        if age_one != high_scores[0] and age_two != high_scores[0]:
+            score_one = high_scores[0]
+        elif age_one != high_scores[1] and age_two != high_scores[1]:
+            score_one = high_scores[1]
+        else:
+            score_one = high_scores[2]
+        if age_one != high_scores[1] and age_two != high_scores[1] and score_one != high_scores[1]:
+            score_two = high_scores[1]
+        elif age_one != high_scores[2] and age_two != high_scores[2] and score_one != high_scores[2]:
+            score_two = high_scores[2]
+        else:
+            score_two = high_scores[3]
+        new_individuals.append(age_one)
+        new_individuals.append(age_two)
+        new_individuals.append(score_one)
+        new_individuals.append(score_two)
+        parents = [age_one, age_two, score_one, score_two]
         while len(new_individuals) < len(old_individuals):
-            a = self.select(old_individuals)
-            b = self.select(old_individuals)
-            if a != b:
-                new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
-                new_individuals.append(new)
-        return Generation(new_individuals, id)
+            idx = random.randint(0, 3)
+            new = parents[idx].reproduce(len(new_individuals), parents[idx - 1]).mutate(mutation_rate)
+            new_individuals.append(new)
+        return Generation(new_individuals, tag)
 
-    def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
+    def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
         """."""
         individuals = [0 for i in range(size)]
         for i in range(len(imported)):
             individuals[i] = imported[i]
-            individuals[i].id = i
+            individuals[i].tag = i
         for i in range(size):
             individuals[i] = Individual().new_random(i, sizes)
-        return Generation(individuals, id)
+        return Generation(individuals, tag)
 
     def export(self, chunk={'index': 0, 'total': 1}):
         """."""
         return {
-            'id': self.id,
+            'tag': self.tag,
             'individuals': list(
                 map(lambda individual: individual.export(), self.individuals)
             )
@@ -458,20 +472,20 @@ class Generation(object):
 
     def gen_import(self, data):
         """."""
-        id = data['id']
+        tag = data['tag']
         self.individuals = data['individuals']
         return Generation(list(map(
             lambda individual: individual.ind_import(), self.individuals
-        )), id)
+        )), tag)
 
 
 
 if __name__ == "__main__":  # pragma: no cover
     test = Generation([])
-    test = test.new_random(5)
-    for i in range(1):
+    test = test.new_random(10)
+    for i in range(500):
         test.run_versus_self()
-        test = test.next(.5, 1)
+        test = test.next(.65, 2)
     game = Game()
     a = test.individuals[0]
     b = test.individuals[1]
