@@ -10,7 +10,8 @@ class GeneticTests(TestCase):
     def setUp(self):
         """Set a new game for testing."""
         self.game = genetic.Game()
-        self.network = genetic.Network(Neural([18, 27, 9, 1]))
+        self.network = genetic.Network([18, 27, 9, 1])
+        self.gen = genetic.Generation([])
 
     # =========== Game tests ========= #
 
@@ -67,14 +68,81 @@ class GeneticTests(TestCase):
             inputs == [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         )
 
-    # def test_get_move_gets_a_move(self):
-    #     """Gets a move."""
-    #     game = self.game
-    #     move = self.network.get_move(game)
-    #     import pdb; pdb.set_trace()
+    def test_get_move_gets_a_move(self):
+        """Gets a move."""
+        game = self.game
+        move = self.network.get_move(game)
+        self.assertTrue(move == 0)
 
     # ============ Iindividual tests =============== #
 
+    def test_create_two_individuals(self):
+        """Create two individuals."""
+        test = self.gen
+        test = test.new_random(2)
+        test = test.new_random(2, [18, 27, 9, 1], 0, test.individuals)
+        self.assertTrue(len(test.individuals) == 2)
+        # import pdb; pdb.set_trace()
+
+    def test_slice_two_individuals(self):
+        """Create two individuals."""
+        gen = self.gen
+        gen = gen.new_random(2)
+        indiv1 = gen.individuals[0]
+        indiv2 = gen.individuals[1]
+        splice = indiv1.splice(indiv1.net, indiv2.net)
+        self.assertTrue(indiv1.net.layers is not indiv2.net.layers)
+        self.assertTrue(splice.layers is not indiv1.net.layers)
+        self.assertTrue(splice.layers is not indiv2.net.layers)
+        flag = True
+        for i in range(len(splice.layers) - 1):
+            for j in range(len(splice.layers[i])):
+                for k in range(len(splice.layers[i][j].weights)):
+                    splice_weight = splice.layers[i][j].weights[k]
+                    indiv_weight = indiv1.net.layers[i][j].weights[k]
+                    if splice_weight is not indiv_weight:
+                        flag = False
+        self.assertFalse(flag)
+        flag = True
+        for i in range(len(splice.layers) - 1):
+            for j in range(len(splice.layers[i])):
+                for k in range(len(splice.layers[i][j].weights)):
+                    splice_weight = splice.layers[i][j].weights[k]
+                    indiv_weight = indiv2.net.layers[i][j].weights[k]
+                    if splice_weight is not indiv_weight:
+                        flag = False
+        self.assertFalse(flag)
+
+        def test_reproduce_new_individual(self):
+            """Create new individual."""
+            gen = self.gen
+            gen = gen.new_random(2)
+            indiv1 = gen.individuals[0]
+            indiv2 = gen.individuals[1]
+            repo = indiv1.reproduce(2, indiv2)
+            self.assertTrue(indiv1.net.layers is not indiv2.net.layers)
+            self.assertTrue(repo.layers is not indiv1.net.layers)
+            flag = True
+            for i in range(len(repo.layers) - 1):
+                for j in range(len(repo.layers[i])):
+                    for k in range(len(repo.layers[i][j].weights)):
+                        repo_weight = repo.layers[i][j].weights[k]
+                        indiv_weight = indiv1.net.layers[i][j].weights[k]
+                        if repo_weight is not indiv_weight:
+                            flag = False
+            self.assertFalse(flag)
+
     # ============ Generation tests =============== #
 
-    
+    def test_generate_test_boards(self):
+        """Gen test boards does."""
+        self.assertEqual(len(self.gen.test_boards), 8)
+
+    def test_run_runs(self):
+        """Gen will run."""
+        test = self.gen
+        test = test.new_random(1)
+        for i in range(1):
+            test.run()
+            test2 = test.next(.3, 1)
+        self.assertNotEqual(test, test2)
