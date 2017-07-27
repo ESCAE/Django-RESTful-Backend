@@ -1,9 +1,7 @@
 """The manipulation file for AI.py."""
 from ai.AI import Neural
-from ai.AI import Node
 from math import floor
 import random
-from ai.tic_tack import directory
 from ai.tic_tack import greedy_bot
 from ai.tic_tack import new_board
 from operator import attrgetter
@@ -141,11 +139,6 @@ class Individual(object):
                 a.score += 9
                 break
             game.move(game.board, a.net.get_move(game))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
                 a.score += 20
                 break
@@ -156,11 +149,6 @@ class Individual(object):
             for x in game.board:
                 board_list.append(x)
             game.move(game.board, b(board_list, game.turn))
-            # print('------')
-            # print('|', game.board[0:3], '|')
-            # print('|', game.board[3:6], '|')
-            # print('|', game.board[6:9], '|')
-            # print('------')
             if game.winner is not None:
                 a.score += 9 - game.board.count(' ')
                 break
@@ -385,13 +373,13 @@ class Generation(object):
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        print('running generation', self.tag)
+        # print('running generation', self.tag)
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
-            print('---------')
-            print('Network ID:', individual.tag)
-            print('Network Score:', individual.score)
-            print('Network Age:', individual.age)
+            # print('---------')
+            # print('Network ID:', individual.tag)
+            # print('Network Score:', individual.score)
+            # print('Network Age:', individual.age)
 
     def order(self):
         """."""
@@ -409,67 +397,48 @@ class Generation(object):
         """."""
         self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
         # print('+++++++++++++')
-        # print('Generation: ', self.id)
+        # print('Generation: ', self.tag)
         # print('High Score:', self.individuals[0].score)
         # print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         # print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
         # print('+++++++++++++')
         if tag < 0:
             tag = self.tag + 1
-        old_individuals = self.individuals
-        new_individuals = []
-        for i in range(clones):
-            new_individuals.append(
-                old_individuals[i].clone(len(new_individuals))
-            )
-        while len(new_individuals) < len(old_individuals):
-            a = self.select(old_individuals)
-            b = self.select(old_individuals)
-            if a != b:
-                new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
+        try:
+            old_individuals = self.individuals
+            new_individuals = []
+            for i in range(clones):
+                new_individuals.append(
+                    old_individuals[i].clone(len(new_individuals))
+                )
+            age_one = self.individuals[0]
+            age_two = self.individuals[1]
+            high_scores = sorted(self.individuals, key=attrgetter('score'))[::-1]
+            score_two = None
+            if age_one != high_scores[0] and age_two != high_scores[0]:
+                score_one = high_scores[0]
+            elif age_one != high_scores[1] and age_two != high_scores[1]:
+                score_one = high_scores[1]
+            else:
+                score_one = high_scores[2]
+            if age_one != high_scores[1] and age_two != high_scores[1] and score_one != high_scores[1]:
+                score_two = high_scores[1]
+            elif age_one != high_scores[2] and age_two != high_scores[2] and score_one != high_scores[2]:
+                score_two = high_scores[2]
+            else:
+                score_two = high_scores[3]
+            new_individuals.append(age_one)
+            new_individuals.append(age_two)
+            new_individuals.append(score_one)
+            new_individuals.append(score_two)
+            parents = [age_one, age_two, score_one, score_two]
+            while len(new_individuals) < len(old_individuals):
+                idx = random.randint(0, 3)
+                new = parents[idx].reproduce(len(new_individuals), parents[idx - 1]).mutate(mutation_rate)
                 new_individuals.append(new)
-        return Generation(new_individuals, tag)
-        # self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
-        # print('+++++++++++++')
-        # print('Generation: ', self.tag)
-        # print('High Score:', self.individuals[0].score)
-        # print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
-        # print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
-        # print('+++++++++++++')
-        # if tag < 0:
-        #     tag = self.tag + 1
-        # old_individuals = self.individuals
-        # new_individuals = []
-        # for i in range(clones):
-        #     new_individuals.append(
-        #         old_individuals[i].clone(len(new_individuals))
-        #     )
-        # age_one = self.individuals[0]
-        # age_two = self.individuals[1]
-        # high_scores = sorted(self.individuals, key=attrgetter('score'))[::-1]
-        # score_two = None
-        # if age_one != high_scores[0] and age_two != high_scores[0]:
-        #     score_one = high_scores[0]
-        # elif age_one != high_scores[1] and age_two != high_scores[1]:
-        #     score_one = high_scores[1]
-        # else:
-        #     score_one = high_scores[2]
-        # if age_one != high_scores[1] and age_two != high_scores[1] and score_one != high_scores[1]:
-        #     score_two = high_scores[1]
-        # elif age_one != high_scores[2] and age_two != high_scores[2] and score_one != high_scores[2]:
-        #     score_two = high_scores[2]
-        # else:
-        #     score_two = high_scores[3]
-        # new_individuals.append(age_one)
-        # new_individuals.append(age_two)
-        # new_individuals.append(score_one)
-        # new_individuals.append(score_two)
-        # parents = [age_one, age_two, score_one, score_two]
-        # while len(new_individuals) < len(old_individuals):
-        #     idx = random.randint(0, 3)
-        #     new = parents[idx].reproduce(len(new_individuals), parents[idx - 1]).mutate(mutation_rate)
-        #     new_individuals.append(new)
-        # return Generation(new_individuals, tag)
+            return Generation(new_individuals, tag)
+        except IndexError:
+            return ('Must provide at least 4 individuals to next.')
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
         """."""
@@ -497,7 +466,6 @@ class Generation(object):
             lambda individual: self.individuals[0].ind_import(individual),
             data['individuals']
         ))
-        # import pdb; pdb.set_trace()
         return Generation(individuals, tag)
 
 
