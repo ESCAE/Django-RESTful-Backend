@@ -1,11 +1,11 @@
 """The manipulation file for AI.py."""
-from ai.AI import Neural
-from ai.AI import Node
+from AI import Neural
+from AI import Node
 from math import floor
 import random
-from ai.tic_tack import directory
-from ai.tic_tack import greedy_bot
-from ai.tic_tack import new_board
+from tic_tack import directory
+from tic_tack import greedy_bot
+from tic_tack import new_board
 from operator import attrgetter
 
 
@@ -124,7 +124,7 @@ class Individual(object):
                             self.score -= 10
                             game.undo()
                         else:
-                            self.evaluate_vs_every_possibility(game.board, True, True)
+                            self.evaluate_vs_every_possibility(game.board, True, False)
                             game.undo()
         if player_two is True:
             if ' ' not in game.board:
@@ -143,7 +143,7 @@ class Individual(object):
                         if game.winner is not None:
                             self.score += 15
                         else:
-                            self.evaluate_vs_every_possibility(game.board, True, True)
+                            self.evaluate_vs_every_possibility(game.board, False, True)
 
     def evaluate_versus(self, other):
         """."""
@@ -501,7 +501,7 @@ class Generation(object):
                 new_individuals.append(new)
         return Generation(new_individuals, tag)
 
-    def new_random(self, size=100, sizes=[18, 27, 18, 27, 9, 1], id=0, imported=[]):
+    def new_random(self, size=100, sizes=[18, 27, 18, 27, 9, 1], tag=0, imported=[]):
         # self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
         # print('+++++++++++++')
         # print('Generation: ', self.tag)
@@ -576,10 +576,10 @@ if __name__ == "__main__":  # pragma: no cover
     """."""
     import pickle
     test = Generation([])
-    test = test.new_random(4)
-    for i in range(2):
-        test.run_versus_self()
-        test = test.next(.05, 2)
+    test = test.new_random(2)
+    for i in range(5000):
+        test.run_versus_ever_possibility()
+        test = test.next(.65, 1)
     with open('testpickle', 'wb') as fp:
         pickle.dump(test.export(), fp)
     with open('testpickle', 'rb') as fp:
