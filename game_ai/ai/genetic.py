@@ -1,12 +1,13 @@
 """The manipulation file for AI.py."""
-from AI import Neural
-from AI import Node
+from ai.AI import Neural
+from ai.AI import Node
 from math import floor
 import random
-from tic_tack import directory
-from tic_tack import greedy_bot
-from tic_tack import new_board
+from ai.tic_tack import directory
+from ai.tic_tack import greedy_bot
+from ai.tic_tack import new_board
 from operator import attrgetter
+
 
 # Found Issues
 # **********************************
@@ -57,10 +58,10 @@ class Game(object):
 
 
 class Network(Neural):
-    """."""
+    """Create Network with boards states."""
 
     def get_inputs(self, board, turn):
-        """."""
+        """Get this inputs."""
         inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
@@ -161,7 +162,7 @@ class Individual(object):
                 break
             board_list = []
             for x in game.board:
-                board_list.append(x)                
+                board_list.append(x)
             game.move(game.board, b(board_list, game.turn))
             # print('------')
             # print('|', game.board[0:3], '|')
@@ -175,7 +176,7 @@ class Individual(object):
         while True:
             board_list = []
             for x in game.board:
-                board_list.append(x)                
+                board_list.append(x)
             game.move(game.board, b(board_list, game.turn))
             if game.winner is not None:
                 a.score += 9 - game.board.count(' ')
@@ -280,9 +281,15 @@ class Individual(object):
             v += self.real_rand(min_perturb, max_perturb)
         return v
 
-    def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
-        """The randomize method grabs each node in a neural net and uses the randomize callback."""
-        net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
+    def randomize(
+        self, net, modify_chance=0.01, min_thresh=-100,
+        max_thresh=100, min_weight=-10, max_weight=10
+    ):
+        """Grab each node in a neural net and uses the randomize callback."""
+        net.each_node(
+            False, self._randomize_callback, modify_chance, min_thresh,
+            max_thresh, min_weight, max_weight
+        )
         return net
 
     def _randomize_callback(
@@ -432,7 +439,6 @@ class Generation(object):
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
         """."""
-
         individuals = [0 for i in range(size)]
         for i in range(len(imported)):
             individuals[i] = imported[i]
