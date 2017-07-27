@@ -7,6 +7,20 @@ import json
 
 
 @csrf_exempt
+def bot_play_1(request):
+    """End point for bot play."""
+    data = json.loads(request.body)
+    return JsonResponse(tic_tack.directory(data['board'], data['move'], 1))
+
+
+@csrf_exempt
+def bot_play_2(request):
+    """End point for bot play."""
+    data = json.loads(request.body)
+    return JsonResponse(tic_tack.directory(data['board'], data['move'], 2))
+
+
+@csrf_exempt
 def bot_play(request):
     """End point for bot play."""
     data = json.loads(request.body)
