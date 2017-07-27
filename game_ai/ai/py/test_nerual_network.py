@@ -91,7 +91,6 @@ class AITestCase(TestCase):
         for layer in test_net.layers:
             for node in layer:
                 self.assertTrue(node.input == 0)
-        # import pdb; pdb.set_trace()
 
     def test_net_creates_network_with_nodes(self):
         """Test net works with sizes."""
@@ -100,15 +99,6 @@ class AITestCase(TestCase):
         for layer in test_net2.layers:
             for node in layer:
                 self.assertTrue(node.input == 0)
-
-
-    # def reset(self):
-    #     """Reset Node."""
-    #     self.each_node(True, self._reset_callback)
-    #
-    # def _reset_callback(self, node, layerindex, index, nodes):
-    #     """Reset Node."""
-    #     node.input = 0
 
     def test_set_inputs_changes_layer1_input_values(self):
         """Set the inputs."""
@@ -196,3 +186,10 @@ class AITestCase(TestCase):
         net.reset()
         for node in net.layers[0]:
             self.assertEqual(node.input, 0)
+
+    def test_instanciate_a_neural_net_with_layers(self):
+        """Test can create clone."""
+        net = Neural([1, 1, 1])
+        net2 = Neural(net.layers)
+        self.assertTrue(net is not net2)
+        self.assertEqual(len(net.layers), len(net2.layers))

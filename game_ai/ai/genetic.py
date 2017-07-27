@@ -1,10 +1,13 @@
 """The manipulation file for AI.py."""
 from ai.AI import Neural
+from ai.AI import Node
 from math import floor
 import random
+from ai.tic_tack import directory
 from ai.tic_tack import greedy_bot
 from ai.tic_tack import new_board
 from operator import attrgetter
+
 
 # Found Issues
 # **********************************
@@ -49,10 +52,10 @@ class Game(object):
 
 
 class Network(Neural):
-    """."""
+    """Create Network with boards states."""
 
     def get_inputs(self, board, turn):
-        """."""
+        """Get this inputs."""
         inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
@@ -104,6 +107,7 @@ class Individual(object):
         return self.compare(self, other)
 
     def evaluate_versus(self, other):
+        """."""
         game = Game()
         a = self
         b = other
@@ -128,6 +132,7 @@ class Individual(object):
                 break
 
     def evaluate_versus_greedy_bot(self):
+        """."""
         game = Game()
         a = self
         b = greedy_bot
@@ -149,7 +154,7 @@ class Individual(object):
                 break
             board_list = []
             for x in game.board:
-                board_list.append(x)                
+                board_list.append(x)
             game.move(game.board, b(board_list, game.turn))
             # print('------')
             # print('|', game.board[0:3], '|')
@@ -163,7 +168,7 @@ class Individual(object):
         while True:
             board_list = []
             for x in game.board:
-                board_list.append(x)                
+                board_list.append(x)
             game.move(game.board, b(board_list, game.turn))
             if game.winner is not None:
                 a.score += 9 - game.board.count(' ')
@@ -268,9 +273,15 @@ class Individual(object):
             v += self.real_rand(min_perturb, max_perturb)
         return v
 
-    def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
-        """The randomize method grabs each node in a neural net and uses the randomize callback."""
-        net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
+    def randomize(
+        self, net, modify_chance=0.01, min_thresh=-100,
+        max_thresh=100, min_weight=-10, max_weight=10
+    ):
+        """Grab each node in a neural net and uses the randomize callback."""
+        net.each_node(
+            False, self._randomize_callback, modify_chance, min_thresh,
+            max_thresh, min_weight, max_weight
+        )
         return net
 
     def _randomize_callback(
@@ -304,9 +315,10 @@ class Individual(object):
 
     def ind_import(self, data):
         """."""
-        tag = data['tag']
-        net = Neural._import(data['net'])
-        sizes = net.get_sizes()
+        id = data['id']
+        net = Network([1, 1])
+        net = Network(net._import(data['net']).layers)
+        sizes = net.get_sizes(net.layers)
         if len(sizes) < 1 or sizes[0] != 18 or sizes[-1] != 1:
             raise ValueError(
                 'Please import object with 18 input nodes and 1 output node.'
@@ -357,6 +369,7 @@ class Generation(object):
         return boards
 
     def run_versus_self(self):
+        """."""
         for a in self.individuals:
             for b in self.individuals:
                 if a != b and a not in b.seen_list and b not in a.seen_list:
@@ -439,7 +452,6 @@ class Generation(object):
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
         """."""
-
         individuals = [0 for i in range(size)]
         for i in range(len(imported)):
             individuals[i] = imported[i]
@@ -459,23 +471,31 @@ class Generation(object):
 
     def gen_import(self, data):
         """."""
-        tag = data['tag']
-        self.individuals = data['individuals']
-        return Generation(list(map(
-            lambda individual: individual.ind_import(), self.individuals
-        )), tag)
-
+        id = data['id']
+        individuals = list(map(
+            lambda individual: self.individuals[0].ind_import(individual),
+            data['individuals']
+        ))
+        # import pdb; pdb.set_trace()
+        return Generation(individuals, id)
 
 
 if __name__ == "__main__":  # pragma: no cover
+    """."""
+    import pickle
     test = Generation([])
-    test = test.new_random(10)
-    for i in range(500):
+    test = test.new_random(4)
+    for i in range(2):
         test.run_versus_self()
-        test = test.next(.65, 2)
+        test = test.next(.05, 2)
+    with open('testpickle', 'wb') as fp:
+        pickle.dump(test.export(), fp)
+    with open('testpickle', 'rb') as fp:
+        imported = test.gen_import(pickle.load(fp))
     game = Game()
-    a = test.individuals[0]
-    b = test.individuals[1]
+    a = imported.individuals[0]
+    b = imported.individuals[1]
+    # import pdb; pdb.set_trace()
     while True:
         if ' ' not in game.board:
             break
