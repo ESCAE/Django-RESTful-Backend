@@ -118,6 +118,8 @@ class Individual(object):
         b = other
         while True:
             if ' ' not in game.board:
+                a.score += 1
+                b.score += 1
                 break
             game.move(game.board, a.net.get_move(game))
             # print('------')
@@ -126,9 +128,12 @@ class Individual(object):
             # print('|', game.board[6:9], '|')
             # print('------')
             if game.winner is not None:
-                a.score += 1
+                a.score += 2
+                b.score -= 2
                 break
             if ' ' not in game.board:
+                a.score += 1
+                b.score += 1
                 break
             game.move(game.board, b.net.get_move(game))
             # print('------')
@@ -137,7 +142,8 @@ class Individual(object):
             # print('|', game.board[6:9], '|')
             # print('------')
             if game.winner is not None:
-                b.score += 1
+                b.score += 2
+                a.score -= 2
                 break
 
     def evaluate_versus_greedy_bot(self):
@@ -468,10 +474,10 @@ class Generation(object):
 
 if __name__ == "__main__":  # pragma: no cover
     test = Generation([])
-    test = test.new_random(5)
-    for i in range(1):
+    test = test.new_random(10)
+    for i in range(500):
         test.run_versus_self()
-        test = test.next(.5, 1)
+        test = test.next(.65, 2)
     game = Game()
     a = test.individuals[0]
     b = test.individuals[1]
