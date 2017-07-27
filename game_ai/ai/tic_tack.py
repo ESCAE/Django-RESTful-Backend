@@ -84,6 +84,7 @@ def directory(board, move, NN=0):
         greedy_move = dumb_bot(board_list)
     elif NN == 3:
         #greedy_move = NN
+        pass
     board_dic = new_board(board_list, greedy_move ,'O')
     return board_dic
 
