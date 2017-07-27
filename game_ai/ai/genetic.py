@@ -1,9 +1,9 @@
 """The manipulation file for AI.py."""
-from ai.AI import Neural
+from AI import Neural
 from math import floor
 import random
-from ai.tic_tack import greedy_bot
-from ai.tic_tack import new_board
+from tic_tack import greedy_bot
+from tic_tack import new_board
 from operator import attrgetter
 
 
@@ -122,7 +122,7 @@ class Individual(object):
                             self.score -= 10
                             game.undo()
                         else:
-                            self.evaluate_vs_every_possibility(game.board, True, True)
+                            self.evaluate_vs_every_possibility(game.board, True, False)
                             game.undo()
         if player_two is True:
             if ' ' not in game.board:
@@ -141,7 +141,7 @@ class Individual(object):
                         if game.winner is not None:
                             self.score += 15
                         else:
-                            self.evaluate_vs_every_possibility(game.board, True, True)
+                            self.evaluate_vs_every_possibility(game.board, False, True)
 
     def evaluate_versus(self, other):
         """."""
@@ -442,13 +442,13 @@ class Generation(object):
     def run(self):
         """Run evaluate for every individual network in a Generation."""
         self.test_boards = self.generate_test_boards()
-        # print('running generation', self.tag)
+        print('running generation', self.tag)
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
-            # print('---------')
-            # print('Network ID:', individual.tag)
-            # print('Network Score:', individual.score)
-            # print('Network Age:', individual.age)
+            print('---------')
+            print('Network ID:', individual.tag)
+            print('Network Score:', individual.score)
+            print('Network Age:', individual.age)
 
     def order(self):
         """."""
@@ -466,12 +466,41 @@ class Generation(object):
         """."""
         old_best = self.individuals[0]
         self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
-        # print('+++++++++++++')
-        # print('Generation: ', self.tag)
-        # print('High Score:', self.individuals[0].score)
-        # print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
-        # print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
-        # print('+++++++++++++')
+        print('+++++++++++++')
+        print('Generation: ', self.tag)
+        print('High Score:', self.individuals[0].score)
+        print('Old best still best:', old_best == self.individuals[0])
+        print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
+        print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
+        print('+++++++++++++')
+        if tag < 0:
+            tag = self.tag + 1
+        old_individuals = self.individuals
+        new_individuals = []
+        for i in range(clones):
+            new_individuals.append(
+                old_individuals[i].clone(len(new_individuals))
+            )
+        while len(new_individuals) < len(old_individuals):
+            a = self.select(old_individuals)
+            b = self.select(old_individuals)
+            if a != b:
+                new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
+                new_individuals.append(new)
+        return Generation(new_individuals, tag)
+
+    def next_under_greedybot(self, mutation_rate=0.05, clones=4, tag=-1):
+        """."""
+        if clones < 4:
+            raise IndexError('Put more than 4 clones in.')
+        old_best = self.individuals[0]
+        self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
+        print('+++++++++++++')
+        print('Generation: ', self.tag)
+        print('High Score:', self.individuals[0].score)
+        print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
+        print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
+        print('+++++++++++++')
         if tag < 0:
             tag = self.tag + 1
         try:
@@ -497,18 +526,16 @@ class Generation(object):
                 score_two = high_scores[2]
             else:
                 score_two = high_scores[3]
-            new_individuals.append(age_one)
-            new_individuals.append(age_two)
-            new_individuals.append(score_one)
-            new_individuals.append(score_two)
             parents = [age_one, age_two, score_one, score_two]
             while len(new_individuals) < len(old_individuals):
-                idx = random.randint(0, 3)
-                new = parents[idx].reproduce(len(new_individuals), parents[idx - 1]).mutate(mutation_rate)
-                new_individuals.append(new)
+                a = self.select(parents)
+                b = self.select(parents)
+                if a != b:
+                    new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
+                    new_individuals.append(new)
             return Generation(new_individuals, tag)
         except IndexError:
-            return ('Must provide at least 4 individuals to next.')
+            raise IndexError('Must provide at least 4 individuals to next.')
 
     def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
 
@@ -544,10 +571,10 @@ if __name__ == "__main__":  # pragma: no cover
     """."""
     import pickle
     test = Generation([])
-    test = test.new_random(4)
-    for i in range(2):
-        test.run_versus_self()
-        test = test.next(.05, 2)
+    test = test.new_random(20)
+    for i in range(1000):
+        test.run()
+        test = test.next(.65, 1)
     with open('testpickle', 'wb') as fp:
         pickle.dump(test.export(), fp)
     with open('testpickle', 'rb') as fp:
