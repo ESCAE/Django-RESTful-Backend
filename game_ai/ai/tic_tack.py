@@ -201,9 +201,9 @@ def greedy_bot(board, my_bot = 'O'):
                                                                                                     if winner(newboard_8, my_bot)[0] is False and my_bot == 'O' :
                                                                                                         wins[a] += 1
                                                                                                         break
-                                                                                                elif winner(newboard_8, my_bot)[0] is True and my_bot == 'X' :
-                                                                                                    wins[a] += 1
-                                                                                                    break
+                                                                                                    elif winner(newboard_8, my_bot)[0] is True and my_bot == 'X' :
+                                                                                                        wins[a] += 1
+                                                                                                        break
     the_max = float('-inf')
     total = 0
     for x in range(len(wins)):
