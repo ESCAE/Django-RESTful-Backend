@@ -112,9 +112,28 @@ class GeneticTests(TestCase):
                     if splice_weight is not indiv_weight:
                         flag = False
         self.assertFalse(flag)
-        # import pdb; pdb.set_trace()
+
+        def test_reproduce_new_individual(self):
+            """Create new individual."""
+            gen = self.gen
+            gen = gen.new_random(2)
+            indiv1 = gen.individuals[0]
+            indiv2 = gen.individuals[1]
+            repo = indiv1.reproduce(2, indiv2)
+            self.assertTrue(indiv1.net.layers is not indiv2.net.layers)
+            self.assertTrue(repo.layers is not indiv1.net.layers)
+            flag = True
+            for i in range(len(repo.layers) - 1):
+                for j in range(len(repo.layers[i])):
+                    for k in range(len(repo.layers[i][j].weights)):
+                        repo_weight = repo.layers[i][j].weights[k]
+                        indiv_weight = indiv1.net.layers[i][j].weights[k]
+                        if repo_weight is not indiv_weight:
+                            flag = False
+            self.assertFalse(flag)
 
     # ============ Generation tests =============== #
+
     def test_generate_test_boards(self):
         """Gen test boards does."""
         self.assertEqual(len(self.gen.test_boards), 8)
