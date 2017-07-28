@@ -1,9 +1,9 @@
 """The manipulation file for AI.py."""
-from ai.AI import Neural
+from AI import Neural
 from math import floor
 import random
-from ai.tic_tack import greedy_bot
-from ai.tic_tack import new_board
+from tic_tack import greedy_bot
+from tic_tack import new_board
 from operator import attrgetter
 import pickle
 from os import path
@@ -703,3 +703,4 @@ if __name__ == "__main__":  # pragma: no cover
         buckets[i.net.get_move(game)] += 1
     print(buckets)
     print('why we be here?')
+
