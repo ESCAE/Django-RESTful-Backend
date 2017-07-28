@@ -1,5 +1,5 @@
 from random import randint
-#import NN
+
 
 def check_move(board, move):
     """makes sure the the move is vaild"""
@@ -44,8 +44,6 @@ def winner(board, player):
         return (False, [6, 7, 8])
     output = (None, -1)
     return output
-
-
 def new_board(board, move, chariter='X', flag=0):
     """makes a new board for the game"""
     output = []
@@ -212,8 +210,6 @@ def greedy_bot(board, my_bot = 'O'):
             the_max = wins[x]
             total = x
     return total
-
-
 def dumb_bot(board):
     """makes a random move"""
     while True:
@@ -221,4 +217,3 @@ def dumb_bot(board):
         if board[move] == ' ':
             break
     return move
-

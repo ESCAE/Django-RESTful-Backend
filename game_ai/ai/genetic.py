@@ -7,12 +7,6 @@ from ai.tic_tack import new_board
 from operator import attrgetter
 
 
-# Found Issues
-# **********************************
-# 1. 214 randomize, param net is a list. list does not have the attribute
-# of 'each_node'. Maybe solved with line 114.
-
-
 class Game(object):
     """Docstring for Game."""
 
@@ -54,7 +48,7 @@ class Network(Neural):
 
     def get_inputs(self, board, turn):
         """Get this inputs."""
-        inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        inputs = [0] * 18
         for i in range(len(board)):
             if board[i] == turn:
                 inputs[i * 2] = 1
@@ -301,10 +295,17 @@ class Individual(object):
     def _splice_callback(self, node, layer_index, index, nodes, source):
         """Use the heads function get a 50/50 on new thresholds and weights."""
         if self.heads():
-            node.threshold = source.layers[layer_index][index].threshold
+            try:
+                node.threshold = source.layers[layer_index][index].threshold
+            except IndexError:
+                    pass
+
         for i in range(len(node.weights)):
             if self.heads():
-                node.weights[i] = source.layers[layer_index][index].weights[i]
+                try:
+                    node.weights[i] = source.layers[layer_index][index].weights[i]
+                except IndexError:
+                    pass
 
     def reproduce(self, tag, other):
         """Clone a given individual network from that 'child'.
@@ -328,6 +329,23 @@ class Individual(object):
         if random.random() < modify_chance:
             v += self.real_rand(min_perturb, max_perturb)
         return v
+
+    def new_randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
+        if random.random() <= 0.10:
+            old_dict = net.export()
+            old_dict['thresholds'].insert(-2, [0] * 9)
+            for i in range(len(old_dict['weights'][-2])):
+                old_dict['weights'][-2][i] = [0] * len(old_dict['thresholds'][-2])
+            net = Network()._import(old_dict)
+        elif random.random() <= 0.10    :
+            if len(net.layers) > 4:
+                old_dict = net.export()
+                del old_dict['thresholds'][-2]
+                del old_dict['weights'][-2]
+                net = Network()._import(old_dict)
+        new = Network(net.layers)
+        new.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
+        return new
 
     def randomize(
         self, net, modify_chance=0.01, min_thresh=-100,
@@ -362,7 +380,7 @@ class Individual(object):
 
     def mutate(self, mutation_rate=0.05):
         """Mutation the current instance of the Individual."""
-        self.randomize(self.net, mutation_rate)
+        self.net = self.new_randomize(self.net, mutation_rate)
         return self
 
     def export(self):
@@ -451,7 +469,9 @@ class Generation(object):
     def run(self):
         """Run evaluate for every individual network in a Generation."""
         self.test_boards = self.generate_test_boards()
+
         print('running generation', self.tag)
+
         for individual in self.individuals:
             success = individual.evaluate(self.test_boards)
             individual.success = success
@@ -459,6 +479,7 @@ class Generation(object):
             print('Network ID:', individual.tag)
             print('Network Score:', individual.score)
             print('Network Age:', individual.age)
+
 
     def order(self):
         """."""
@@ -578,89 +599,9 @@ class Generation(object):
 
 if __name__ == "__main__":  # pragma: no cover
     """."""
-    import pickle
     test = Generation([])
-    test = test.new_random(50)
-    for i in test.individuals:
-        while i.age != 8:
-            test.run()
-            test = test.next_under_greedybot(.2)
-        break
-    with open('testpickle', 'wb') as fp:
-        pickle.dump(test.export(), fp)
-    with open('testpickle', 'rb') as fp:
-        imported = test.gen_import(pickle.load(fp))
-    game = Game()
-    a = imported.individuals[0]
-    b = imported.individuals[1]
+    test = test.new_random(20)
     while True:
-        if ' ' not in game.board:
-            break
-        game.move(game.board, a.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            a.score += 1
-            break
-        if ' ' not in game.board:
-            break
-        # board_list = []
-        # for x in game.board:
-        #     board_list.append(x)
-        # game.move(game.board, b(board_list, game.turn))
-        game.move(game.board, b.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            break
-    game = Game()
-    a = test.individuals[0]
-    b = test.individuals[1]
-    # a = test.individuals[0]
-    # b = greedy_bot
-    while True:
-        # board_list = []
-        # for x in game.board:
-        #     board_list.append(x)
-        # game.move(game.board, b(board_list, game.turn))
-        game.move(game.board, b.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            break
-        if ' ' not in game.board:
-            break
-        game.move(game.board, a.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            break
-        if ' ' not in game.board:
-            break
-    buckets = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-    }
-    for i in test.individuals:
-        game = Game()
-        buckets[i.net.get_move(game)] += 1
-    print(buckets)
+        test.run()
+        test = test.next(0.05, 5)
+

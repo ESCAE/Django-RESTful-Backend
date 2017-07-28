@@ -7,12 +7,14 @@ class Node(object):
     def __init__(self):
         """Init the node."""
         self.input = 0
+        self.weights = []
+        self.threshold = 1
 
 
 class Neural(object):
     """Neural Net Class."""
 
-    def __init__(self, sizesornodes):
+    def __init__(self, sizesornodes=[1]):
         """Init the net."""
         self.layers = []
         self.net(sizesornodes)
@@ -25,10 +27,12 @@ class Neural(object):
             sizes = self.get_sizes(sizesornodes)
             layers = sizesornodes
         else:
+
             sizes = sizesornodes
         for i in range(len(sizes)):
             self.layers.append([])
             for j in range(sizes[i]):
+                # if type(j) is int:
                 self.layers[i].append(self.make_node(i, j, sizes, layers))
 
     def get_sizes(self, nodes):
@@ -41,13 +45,13 @@ class Neural(object):
         if layerindex < len(sizes) - 1:
             try:
                 node.threshold = layers[layerindex][nodeindex].threshold
-            except (IndexError, AttributeError):
+            except (IndexError, AttributeError, TypeError):
                 node.threshold = 1
             try:
                 node.weights = list(map(
                     lambda x: x, layers[layerindex][nodeindex].weights
                 ))
-            except (IndexError, AttributeError):
+            except (IndexError, AttributeError, TypeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
         return node
 
@@ -70,27 +74,14 @@ class Neural(object):
         num = 0 if visitoutput else 1
         lastlayer = len(self.layers) - num
         for i in range(lastlayer):
-            # print('-------------------------------')
-            # print('now in layer', i)
             for j in range(len(self.layers[i])):
                 callback(self.layers[i][j], i, j, self.layers, *args)
 
     def _run_callback(self, node, layerindex, index, nodes):
         """Run callback."""
-        # print('+++++++++++++++')
-        # print('node threshold', node.threshold)
-        # print('node input', node.input)
-        # print(layerindex, index)
-        # print('node weights', node.weights)
         if node.input >= node.threshold:
             for i in range(len(node.weights)):
-                # print('------')
                 nodes[layerindex + 1][i].input += node.weights[i] * node.input
-                # print(
-                #     'node', i,
-                #     'at layer', layerindex + 1,
-                #     'now has input of', nodes[layerindex + 1][i].input
-                # )
 
     def get_outputs(self):
         """Get outputs."""
@@ -155,9 +146,11 @@ class Neural(object):
         self.each_node(False, self._set_weights_callback, weights)
 
     def _set_weights_callback(self, node, layerindex, index, nodes, weights):
-        """Set wieghts."""
-        node.weights = weights[layerindex][index]
-        # print(weights[layerindex][index])
+        """Set weights."""
+        if len(node.weights) < 9:
+            node.weights = [0]
+        else:
+            node.weights = weights[layerindex][index]
 
     # ========== reset related =========== #
 
