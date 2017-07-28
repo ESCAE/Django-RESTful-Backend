@@ -1,9 +1,9 @@
 """The manipulation file for AI.py."""
-from AI import Neural
+from ai.AI import Neural
 from math import floor
 import random
-from tic_tack import greedy_bot
-from tic_tack import new_board
+from ai.tic_tack import greedy_bot
+from ai.tic_tack import new_board
 from operator import attrgetter
 import pickle
 from os import path
