@@ -456,12 +456,8 @@ class Generation(object):
 
     def run_versus_ever_possibility(self):
         """."""
-        # print('running generation', self.id)
         for individual in self.individuals:
             individual.evaluate_vs_every_possibility()
-            # print('---------')
-            # print('Network ID:', individual.id)
-            # print('Network Score:', individual.score)
 
     def run_versus_self(self):
         """."""
@@ -477,20 +473,20 @@ class Generation(object):
         """."""
         for i in range(len(self.individuals)):
             self.individuals[i].evaluate_versus_greedy_bot()
-            print(self.individuals[i].score)
+            # print(self.individuals[i].score)
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
         self.test_boards = self.generate_test_boards()
 
-        print('running generation', self.tag)
+        # print('running generation', self.tag)
 
         for individual in self.individuals:
             individual.success = individual.evaluate(self.test_boards)
-            print('---------')
-            print('Network ID:', individual.tag)
-            print('Network Score:', individual.score)
-            print('Network Age:', individual.age)
+            # print('---------')
+            # print('Network ID:', individual.tag)
+            # print('Network Score:', individual.score)
+            # print('Network Age:', individual.age)
             # print('weights:', individual.net._get_weights())
 
     def order(self):
@@ -510,15 +506,15 @@ class Generation(object):
         old_best = self.individuals[0]
         self.individuals = sorted(self.individuals,
                                   key=attrgetter('age', 'score'))[::-1]
-        print('+++++++++++++')
-        print('Generation: ', self.tag)
-        print('High Score:', self.individuals[0].score)
-        print('Old best still best:', old_best == self.individuals[0])
-        print('Generation average Score:',
-              sum(ind.score for ind in self.individuals) / (len(self.individuals)))
-        print('Generation average age:',
-              sum(ind.age for ind in self.individuals) / (len(self.individuals)))
-        print('+++++++++++++')
+        # print('+++++++++++++')
+        # print('Generation: ', self.tag)
+        # print('High Score:', self.individuals[0].score)
+        # print('Old best still best:', old_best == self.individuals[0])
+        # print('Generation average Score:',
+        #       sum(ind.score for ind in self.individuals) / (len(self.individuals)))
+        # print('Generation average age:',
+        #       sum(ind.age for ind in self.individuals) / (len(self.individuals)))
+        # print('+++++++++++++')
         if tag < 0:
             tag = self.tag + 1
         old_individuals = self.individuals
@@ -543,14 +539,14 @@ class Generation(object):
                 individual.success = 1
         self.individuals = sorted(self.individuals,
                                   key=attrgetter('success', 'score'))[::-1]
-        print('+++++++++++++')
-        print('Generation: ', self.tag)
-        print('Oldest High Score:', self.individuals[0].score)
-        print('Generation average Score:',
-              sum(ind.score for ind in self.individuals) / (len(self.individuals)))
-        print('Generation average age:',
-              sum(ind.age for ind in self.individuals) / (len(self.individuals)))
-        print('+++++++++++++')
+        # print('+++++++++++++')
+        # print('Generation: ', self.tag)
+        # print('Oldest High Score:', self.individuals[0].score)
+        # print('Generation average Score:',
+        #       sum(ind.score for ind in self.individuals) / (len(self.individuals)))
+        # print('Generation average age:',
+        #       sum(ind.age for ind in self.individuals) / (len(self.individuals)))
+        # print('+++++++++++++')
         if tag < 0:
             tag = self.tag + 1
         try:

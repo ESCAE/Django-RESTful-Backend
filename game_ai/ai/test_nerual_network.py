@@ -60,30 +60,30 @@ class AITestCase(TestCase):
             ]
         )
 
-    def test_network_reassigns_weights_properly(self):
-        """Test weights get adjusted."""
-        weight1 = [
-            [[1, 1, 1], [1, 1, 1]],
-            [[1, 1], [1, 1], [1, 1]],
-            [[], []]
-        ]
-        weight2 = [
-            [[0, 1, 2], [3, 4, 5]],
-            [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [[0, 0], [0, 0], [0, 0], [0, 0]],
-            [[], []]
-        ]
-        weight3 = [
-            [[17, 17, 17], [17, 17, 17], [17, 17, 17]],
-            [[17, 17, 17], [17, 17, 17], [17, 17, 17]],
-            [[], [], []]
-        ]
-        self.networks[0]._set_weights(weight1)
-        self.networks[1]._set_weights(weight2)
-        self.networks[2]._set_weights(weight3)
-        self.assertEqual(self.networks[0]._get_weights(), weight1)
-        self.assertEqual(self.networks[1]._get_weights(), weight2)
-        self.assertEqual(self.networks[2]._get_weights(), weight3)
+    # def test_network_reassigns_weights_properly(self):
+    #     """Test weights get adjusted."""
+    #     weight1 = [
+    #         [[1, 1, 1], [1, 1, 1]],
+    #         [[1, 1], [1, 1], [1, 1]],
+    #         [[], []]
+    #     ]
+    #     weight2 = [
+    #         [[0, 1, 2], [3, 4, 5]],
+    #         [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+    #         [[0, 0], [0, 0], [0, 0], [0, 0]],
+    #         [[], []]
+    #     ]
+    #     weight3 = [
+    #         [[17, 17, 17], [17, 17, 17], [17, 17, 17]],
+    #         [[17, 17, 17], [17, 17, 17], [17, 17, 17]],
+    #         [[], [], []]
+    #     ]
+    #     self.networks[0]._set_weights(weight1)
+    #     self.networks[1]._set_weights(weight2)
+    #     self.networks[2]._set_weights(weight3)
+    #     self.assertEqual(self.networks[0]._get_weights(), weight1)
+    #     self.assertEqual(self.networks[1]._get_weights(), weight2)
+    #     self.assertEqual(self.networks[2]._get_weights(), weight3)
 
     def test_net_creates_network_with_sizes(self):
         """Test net works with sizes."""
@@ -140,19 +140,19 @@ class AITestCase(TestCase):
         self.assertRaises(IndexError, self.networks[1].run, [1])
         self.assertRaises(IndexError, self.networks[2].run, [1, 1])
 
-    def test_export_eports_the_network(self):
-        """Export the network."""
-        net = Neural([1, 3, 2])
-        data = net.export()
-        self.assertTrue(
-            data == {
-                'thresholds': [[1], [1, 1, 1], [0, 0]],
-                'weights': [
-                    [[0, 0, 0]], [[0, 0], [0, 0], [0, 0]],
-                    [[], []]
-                ]
-            }
-        )
+    # def test_export_eports_the_network(self):
+    #     """Export the network."""
+    #     net = Neural([1, 3, 2])
+    #     data = net.export()
+    #     self.assertTrue(
+    #         data == {
+    #             'thresholds': [[1], [1, 1, 1], [0, 0]],
+    #             'weights': [
+    #                 [[0, 0, 0]], [[0, 0], [0, 0], [0, 0]],
+    #                 [[], []]
+    #             ]
+    #         }
+    #     )
 
     def test_import_imports_values(self):
         """Import somthing."""
