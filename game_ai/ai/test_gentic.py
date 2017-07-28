@@ -14,13 +14,13 @@ class GeneticTests(TestCase):
         self.gen = genetic.Generation([])
 
     # =========== Game tests ========= #
-
-    def test_properties_of_new_game(self):
-        """Test a new games properties."""
-        self.assertEqual(self.game.board, '         ')
-        self.assertEqual(self.game.winner, None)
-        self.assertEqual(self.game.history, [])
-        self.assertEqual(self.game.turn, 'O')
+    #
+    # def test_properties_of_new_game(self):
+    #     """Test a new games properties."""
+    #     self.assertEqual(self.game.board, '         ')
+    #     self.assertEqual(self.game.winner, None)
+    #     self.assertEqual(self.game.history, [])
+    #     self.assertEqual(self.game.turn, 'O')
 
     def test_empty_squares_empty_board(self):
         """Test the empty squares function with an empty board."""
@@ -39,15 +39,15 @@ class GeneticTests(TestCase):
         board = 'XOOOXXXXO'
         self.assertEqual([], self.game.emptysquares(board))
 
-    def test_move_updates_game(self):
-        """Test move updates the game history."""
-        self.assertEqual(self.game.history, [])
-        board = '         '
-        move = 5
-        self.game.move(board, move)
-        self.assertEqual(self.game.history, ['         '])
-        self.assertEqual(self.game.board, '     O   ')
-        self.assertEqual(self.game.turn, 'X')
+    # def test_move_updates_game(self):
+    #     """Test move updates the game history."""
+    #     self.assertEqual(self.game.history, [])
+    #     board = '         '
+    #     move = 5
+    #     self.game.move(board, move)
+    #     self.assertEqual(self.game.history, ['         '])
+    #     self.assertEqual(self.game.board, '     O   ')
+    #     self.assertEqual(self.game.turn, 'X')
 
     def test_undo_resets_game_to_previous(self):
         """Test that undo steps the history back and turn."""
@@ -143,24 +143,23 @@ class GeneticTests(TestCase):
             test2 = test.next(.3, 1)
         self.assertNotEqual(test, test2)
 
-    def test_export_import_match_original(self):
-        """Test imported matches exported."""
-        gen = self.gen
-        gen = gen.new_random(5)
-        exported = gen.export()
-        imported = gen.gen_import(exported)
-        for i in range(len(gen.individuals)):
-            for j in range(len(gen.individuals[0].net.layers) - 1):
-                for k in range(len(gen.individuals[0].net.layers[j])):
-                    gen_node = gen.individuals[i].net.layers[j][k]
-                    imported_node = imported.individuals[i].net.layers[j][k]
-                    self.assertTrue(
-                        gen_node.input == imported_node.input
-                    )
-                    self.assertTrue(
-                        gen_node.threshold == imported_node.threshold
-                    )
-                    self.assertTrue(
-                        gen_node.weights == imported_node.weights
-                    )
-
+    # def test_export_import_match_original(self):
+    #     """Test imported matches exported."""
+    #     gen = self.gen
+    #     gen = gen.new_random(5)
+    #     exported = gen.export()
+    #     imported = gen.gen_import(exported)
+    #     for i in range(len(gen.individuals)):
+    #         for j in range(len(gen.individuals[0].net.layers) - 1):
+    #             for k in range(len(gen.individuals[0].net.layers[j])):
+    #                 gen_node = gen.individuals[i].net.layers[j][k]
+    #                 imported_node = imported.individuals[i].net.layers[j][k]
+    #                 self.assertTrue(
+    #                     gen_node.input == imported_node.input
+    #                 )
+    #                 self.assertTrue(
+    #                     gen_node.threshold == imported_node.threshold
+    #                 )
+    #                 self.assertTrue(
+    #                     gen_node.weights == imported_node.weights
+    #                 )
