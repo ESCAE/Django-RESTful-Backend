@@ -1,10 +1,14 @@
 from random import randint
 #import NN
+
+
 def check_move(board, move):
     """makes sure the the move is vaild"""
     if board[move] == ' ':
         return True
     return False
+
+
 def winner(board, player):
     """checks if there is a win condition"""
     if board[0] == player and board[1] == player and board[2] == player:
@@ -60,6 +64,8 @@ def new_board(board, move, chariter='X', flag=0):
     output_send['WL'] = winner(output, chariter)[0]
     output_send['Wline'] = winner(output, chariter)[1]
     return output_send
+
+
 def directory(board, move, NN=0):
     """middle man for the front end and the NN"""
     board_list = []
@@ -80,6 +86,8 @@ def directory(board, move, NN=0):
         pass
     board_dic = new_board(board_list, greedy_move ,'O')
     return board_dic
+
+
 def new_board_bot(board, move, chariter='X'):
     """makes a new board for the bot"""
     output = []
@@ -87,6 +95,8 @@ def new_board_bot(board, move, chariter='X'):
         output.append(x)
     output[move] = chariter
     return output
+
+
 def greedy_bot(board, my_bot = 'O'):
     """makes a move based the the most wins"""
     wins = []
