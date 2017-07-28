@@ -68,8 +68,8 @@ def new_board(board, move, chariter='X', flag=0):
     return output_send
 
 
-def directory(board, move, nn=0):
-    """Middle man for the front end and the nn."""
+def directory(board, move, bot=2):
+    """Middle man for the front end and the bot."""
     board_list = []
     for x in board:
         board_list.append(x)
@@ -79,9 +79,9 @@ def directory(board, move, nn=0):
     board_list = []
     for x in board_dic['board']:
         board_list.append(x)
-    if nn == 0:
+    if bot == 2:
         bot_move = greedy_bot(board_list)
-    elif nn == 1:
+    elif bot == 1:
         bot_move = dumb_bot(board_list)
     board_dic = new_board(board_list, bot_move, 'O')
     return board_dic
