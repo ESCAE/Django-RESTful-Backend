@@ -24,7 +24,7 @@ def bot_play_2(request):
 @csrf_exempt
 def bot_play(request):
     """End point for bot play."""
-    print(request.body)
+    # print(request.body)
     data = json.loads(request.body)
     return JsonResponse(genetic.move(data['board'], data['move']))
 
