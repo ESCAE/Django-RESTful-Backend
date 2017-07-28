@@ -134,10 +134,6 @@ class GeneticTests(TestCase):
 
     # ============ Generation tests =============== #
 
-    def test_generate_test_boards(self):
-        """Gen test boards does."""
-        self.assertEqual(len(self.gen.test_boards), 8)
-
     def test_run_runs(self):
         """Gen will run."""
         test = self.gen
