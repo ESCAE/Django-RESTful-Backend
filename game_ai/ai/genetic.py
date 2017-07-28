@@ -1,9 +1,9 @@
 """The manipulation file for AI.py."""
-from ai.AI import Neural
+from AI import Neural
 from math import floor
 import random
-from ai.tic_tack import greedy_bot
-from ai.tic_tack import new_board
+from tic_tack import greedy_bot
+from tic_tack import new_board
 from operator import attrgetter
 
 
@@ -479,6 +479,7 @@ class Generation(object):
             print('Network ID:', individual.tag)
             print('Network Score:', individual.score)
             print('Network Age:', individual.age)
+            # print('weights:', individual.net._get_weights())
 
 
     def order(self):
@@ -603,5 +604,4 @@ if __name__ == "__main__":  # pragma: no cover
     test = test.new_random(20)
     while True:
         test.run()
-        test = test.next(0.05, 5)
-
+        test = test.next_under_greedybot(0.05)
