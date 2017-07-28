@@ -234,29 +234,19 @@ class Individual(object):
         """Test non-ended condition boards against individual neural net."""
         self.score = 0
         failed_depth = -1
-        filler_list = []
-        yes = 0
-        no = 0
+        chain_of_successes = 0
         for depth in range(len(test_boards)):
             for board in test_boards[depth]:
                 if not self.evaluate_one(board) and failed_depth < 0:
                     failed_depth = depth
-            if failed_depth < 0 or depth < 3:
-                filler_list.append(True)
-            else:
-                filler_list.append(False)
+                    if depth > failed_depth:
+                        break
+                elif failed_depth < 0:
+                    chain_of_successes += 1
+            if failed_depth > 0:
+                break
         self.age = len(test_boards) if failed_depth < 0 else failed_depth
-        for i in range(self.age):
-            for board in test_boards[i]:
-                game = Game(board['board'])
-                if self.net.get_move(game) == board['Right_moves']:
-                    yes += 1
-                else:
-                    no += 1
-            print('successes:', yes)
-            print('wrong:', no)
-            print('-----')
-        return yes
+        return chain_of_successes
 
     def compare(self, a, b):
         """Compare two individual Neurals by age or score."""
@@ -377,10 +367,11 @@ class Individual(object):
 class Generation(object):
     """Generation."""
 
-    def __init__(self, individuals, tag=0):
+    def __init__(self, individuals, tag=0, dictonary=None):
         """."""
         self.tag = tag
         self.individuals = individuals
+        self.boards_dict = dictonary
 
     def generate_pointed_boards(self, board='         '):
         game = Game(board)
@@ -479,25 +470,23 @@ class Generation(object):
             print('Network Score:', individual.score)
             print('Network Age:', individual.age)
 
-    def run_under_pointed_bot(self):
+    def run_under_pointed_bot(self, second=False):
         """Run evaluate for every individual network in a Generation."""
-        self.boards_dict = {}
-        self.generate_pointed_boards()
+        if self.boards_dict is None:
+            self.boards_dict = {}
+            self.generate_pointed_boards()
         boards_list = [[] for i in range(9)]
+        num = 0 if second is False else 1
         for key in self.boards_dict:
-            if self.boards_dict[key]['board'].count(' ') < 9 and self.boards_dict[key]['board'].count(' ') % 2 == 0:
+            if self.boards_dict[key]['board'].count(' ') < 9 and self.boards_dict[key]['board'].count(' ') % 2 == num:
                 boards_list[9 - self.boards_dict[key]['board'].count(' ')].append(self.boards_dict[key])
-        for i in boards_list:
-            print(len(i))
-            if len(i) > 0:
-                print(i[0])
         for individual in self.individuals:
             individual.success = individual.evaluate(boards_list)
-            print('---------')
-            print('Network ID:', individual.tag)
-            print('Network Score:', individual.score)
-            print('Network Age:', individual.age)
-            print('Network success:', individual.success)
+            # print('---------')
+            # print('Network ID:', individual.tag)
+            # print('Network Score:', individual.score)
+            # print('Network Age:', individual.age)
+            # print('Network success:', individual.success)
 
     def order(self):
         """."""
@@ -574,6 +563,41 @@ class Generation(object):
         except IndexError:
             raise IndexError('Must provide at least 3 individuals to next.')
 
+    def next_under_greedybot_pointed(self, mutation_rate=0.05, tag=-1):
+        """."""
+        for individual in self.individuals:
+            if individual.success == 0 and individual.age == 1:
+                individual.success = 1
+        self.individuals = sorted(self.individuals,
+                                  key=attrgetter('success', 'score'))[::-1]
+        print('+++++++++++++')
+        print('Generation: ', self.tag)
+        print('Oldest High Score:', self.individuals[0].score)
+        print('Generation average Score:',
+              sum(ind.score for ind in self.individuals) / (len(self.individuals)))
+        print('Generation average age:',
+              sum(ind.age for ind in self.individuals) / (len(self.individuals)))
+        print('+++++++++++++')
+        if tag < 0:
+            tag = self.tag + 1
+        try:
+            old_individuals = self.individuals
+            new_individuals = []
+            new_individuals.append(self.individuals[0].clone(len(new_individuals)))
+            new_individuals.append(self.individuals[1].clone(len(new_individuals)))
+            new_individuals.append(self.individuals[2].clone(len(new_individuals)))
+            parents = new_individuals
+            while len(new_individuals) < len(old_individuals):
+                a = self.select(parents)
+                b = self.select(parents)
+                if a != b:
+                    new = a.reproduce(len(new_individuals),
+                                      b).mutate(mutation_rate)
+                    new_individuals.append(new)
+            return Generation(new_individuals, tag, self.boards_dict)
+        except IndexError:
+            raise IndexError('Must provide at least 3 individuals to next.')
+
 
     def new_random(self, size=100, sizes=[18, 27, 18, 9, 1], tag=0, imported=[]):
 
@@ -611,8 +635,8 @@ if __name__ == "__main__":  # pragma: no cover
     test = Generation([])
     test = test.new_random(20)
     for i in range(10):
-        test.run_under_pointed_bot()
-        test = test.next_under_greedybot(.05, 5)
+        test.run_under_pointed_bot(True)
+        test = test.next_under_greedybot_pointed(.65)
     # with open('testpickle', 'wb') as fp:
     #     pickle.dump(test.export(), fp)
     # with open('testpickle', 'rb') as fp:
