@@ -1,12 +1,11 @@
 """The manipulation file for AI.py."""
 from AI import Neural
-from AI import Node
 from math import floor
 import random
-from tic_tack import directory
 from tic_tack import greedy_bot
 from tic_tack import new_board
 from operator import attrgetter
+
 
 # Found Issues
 # **********************************
@@ -42,25 +41,19 @@ class Game(object):
         self.board = next_board['board']
         self.winner = next_board['WL']
         self.turn = 'X' if self.turn == 'O' else 'O'
-        # self.board = self.board[:next_board['move']] + 'O' + self.board[next_board['move'] + 1:]
-        # if self.winner is True:
-        #     return
-        # self.history.append(self.board)
 
     def undo(self):
         """Undo a move."""
-        # if len(self.history) > 1:
-        #     self.history.pop()
         self.board = self.history.pop()
         self.winner = None
         self.turn = 'X' if self.turn == 'O' else 'O'
 
 
 class Network(Neural):
-    """."""
+    """Create Network with boards states."""
 
     def get_inputs(self, board, turn):
-        """."""
+        """Get this inputs."""
         inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(board)):
             if board[i] == turn:
@@ -84,6 +77,7 @@ class Network(Neural):
             game.move(game.board, move)
             throwaway.reset()
             output = throwaway.run(self.get_inputs(game.board, game.turn))[0]
+            game.undo()
             if output > largest:
                 largest = output
                 top = [move]
@@ -95,18 +89,127 @@ class Network(Neural):
 class Individual(object):
     """Represent a individual neural net."""
 
-    def __init__(self, id=-1, net=None):
+    def __init__(self, tag=-1, net=None):
         """."""
-        self.id = id
+        self.tag = tag
         self.net = net
         self.age = float('-inf')
-        self.score = float('-inf')
+        self.score = 0
         self.AGE_MAX = 8
         self.SCORE_MAX = 4298
+        self.winner = False
+        self.seen_list = []
 
     def compare_to(self, other):
         """Referencing compare call self to a given individual."""
         return self.compare(self, other)
+
+    def evaluate_vs_every_possibility(self, board='         ', player_one=True, player_two=True):
+        game = Game(board)
+        if player_one is True:
+            if ' ' not in game.board:
+                self.score += 5
+            else:
+                game.move(game.board, self.net.get_move(game))
+                if game.winner is not None:
+                    self.score += 10
+                elif ' ' not in game.board:
+                    self.score += 5
+                else:
+                    for move in game.emptysquares(game.board):
+                        game.move(game.board, move)
+                        if game.winner is not None:
+                            self.score -= 10
+                            game.undo()
+                        else:
+                            self.evaluate_vs_every_possibility(game.board, True, False)
+                            game.undo()
+        if player_two is True:
+            if ' ' not in game.board:
+                self.score += 10
+            else:
+                for move in game.emptysquares(game.board):
+                    game.move(game.board, move)
+                    if game.winner is not None:
+                        self.score -= 5
+                        game.undo()
+                    elif ' ' not in game.board:
+                        self.score += 10
+                        game.undo()
+                    else:
+                        game.move(game.board, self.net.get_move(game))
+                        if game.winner is not None:
+                            self.score += 15
+                        else:
+                            self.evaluate_vs_every_possibility(game.board, False, True)
+
+    def evaluate_versus(self, other):
+        """."""
+        game = Game()
+        a = self
+        b = other
+        while True:
+            if ' ' not in game.board:
+                a.score += 1
+                b.score += 1
+                break
+            game.move(game.board, a.net.get_move(game))
+            if game.winner is not None:
+                a.score += 2
+                b.score -= 5
+                break
+            if ' ' not in game.board:
+                a.score += 1
+                b.score += 1
+                break
+            game.move(game.board, b.net.get_move(game))
+            if game.winner is not None:
+                b.score += 2
+                a.score -= 5
+                break
+
+    def evaluate_versus_greedy_bot(self):
+        """."""
+        game = Game()
+        a = self
+        b = greedy_bot
+        while True:
+            if ' ' not in game.board:
+                a.score += 9
+                break
+            game.move(game.board, a.net.get_move(game))
+            if game.winner is not None:
+                a.score += 20
+                break
+            if ' ' not in game.board:
+                a.score += 9
+                break
+            board_list = []
+            for x in game.board:
+                board_list.append(x)
+            game.move(game.board, b(board_list, game.turn))
+            if game.winner is not None:
+                a.score += 9 - game.board.count(' ')
+                break
+        game = Game()
+        while True:
+            board_list = []
+            for x in game.board:
+                board_list.append(x)
+            game.move(game.board, b(board_list, game.turn))
+            if game.winner is not None:
+                a.score += 9 - game.board.count(' ')
+                break
+            if ' ' not in game.board:
+                a.score += 9
+                break
+            game.move(game.board, a.net.get_move(game))
+            if game.winner is not None:
+                a.score += 20
+                break
+            if ' ' not in game.board:
+                a.score += 9
+                break
 
     def evaluate_one(self, board_dict):
         """Compare scoring function.
@@ -135,6 +238,27 @@ class Individual(object):
             else:
                 filler_list.append(False)
         self.age = len(test_boards) if failed_depth < 0 else failed_depth
+        if self.age >= 2:
+            for board in test_boards[1]:
+                game = Game(board['board'])
+                if self.net.get_move(game) == board['Right_moves']:
+                    print('used move with success:', self.net.get_move(game))
+                    print('---')
+                else:
+                    print('used move unsuccessfully:', self.net.get_move(game))
+                    print('The best move was:', board['Right_moves'])
+                    print('---')
+            yes = 0
+            no = 0
+            for board in test_boards[2]:
+                game = Game(board['board'])
+                if self.net.get_move(game) == board['Right_moves']:
+                    yes += 1
+                else:
+                    no += 1
+            print('successes:', yes)
+            print('wrong:', no)
+            print('-----')
 
     def compare(self, a, b):
         """Compare two individual Neurals by age or score."""
@@ -146,9 +270,9 @@ class Individual(object):
         """Compare two Nets by age or score in the opposite order."""
         return self.compare(b, a)
 
-    def clone(self, id):
+    def clone(self, tag):
         """Clone the instance."""
-        return Individual(id, self.net)
+        return Individual(tag, self.net)
 
     def heads(self):
         """Return a 50/50 True/False."""
@@ -173,14 +297,13 @@ class Individual(object):
             if self.heads():
                 node.weights[i] = source.layers[layer_index][index].weights[i]
 
-
-    def reproduce(self, id, other):
+    def reproduce(self, tag, other):
         """Clone a given individual network from that 'child'.
 
         run the splice function with the child and another individual network.
         """
         new = self.splice(self.net, other.net)
-        child = Individual(id, new)
+        child = Individual(tag, new)
         return child
 
     def real_rand(self, minimum, maximum):
@@ -197,9 +320,15 @@ class Individual(object):
             v += self.real_rand(min_perturb, max_perturb)
         return v
 
-    def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
-        """The randomize method grabs each node in a neural net and uses the randomize callback."""
-        net.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
+    def randomize(
+        self, net, modify_chance=0.01, min_thresh=-100,
+        max_thresh=100, min_weight=-10, max_weight=10
+    ):
+        """Grab each node in a neural net and uses the randomize callback."""
+        net.each_node(
+            False, self._randomize_callback, modify_chance, min_thresh,
+            max_thresh, min_weight, max_weight
+        )
         return net
 
     def _randomize_callback(
@@ -218,9 +347,9 @@ class Individual(object):
                 node.weights[i], modify_chance, min_weight, max_weight
             )
 
-    def new_random(self, id, sizes):
+    def new_random(self, tag, sizes):
         """Return New Random."""
-        return Individual(id, self.randomize(Network(sizes), 1))
+        return Individual(tag, self.randomize(Network(sizes), 1))
 
     def mutate(self, mutation_rate=0.05):
         """Mutation the current instance of the Individual."""
@@ -229,28 +358,29 @@ class Individual(object):
 
     def export(self):
         """Export a individual network, in dictionary form."""
-        return {'id': self.id, 'net': self.net.export()}
+        return {'tag': self.tag, 'net': self.net.export()}
 
     def ind_import(self, data):
         """."""
-        id = data['id']
-        net = Neural._import(data['net'])
-        sizes = net.get_sizes()
+        tag = data['tag']
+        net = Network([1, 1])
+        net = Network(net._import(data['net']).layers)
+        sizes = net.get_sizes(net.layers)
         if len(sizes) < 1 or sizes[0] != 18 or sizes[-1] != 1:
             raise ValueError(
                 'Please import object with 18 input nodes and 1 output node.'
             )
-        return Individual(id, net)
+        return Individual(tag, net)
 
 
 class Generation(object):
     """Generation."""
 
-    def __init__(self, individuals, id=0):
+    def __init__(self, individuals, tag=0):
         """."""
-        self.id = id
+        self.tag = tag
         self.individuals = individuals
-        self.test_boards = self.generate_test_boards()
+
 
     def generate_test_boards(
         self, boards=[[] for i in range(8)], visited={}, game=None
@@ -270,7 +400,7 @@ class Generation(object):
             board_list = []
             for x in game.board:
                 board_list.append(x)
-            correct_move = greedy_bot(board_list)
+            correct_move = greedy_bot(board_list, game.turn)
             boards[9 - len(emptysquares)].append({
                 'board': game.board,
                 'Right_moves': correct_move
@@ -285,13 +415,38 @@ class Generation(object):
             game.undo()
         return boards
 
+    def run_versus_ever_possibility(self):
+        # print('running generation', self.id)
+        for individual in self.individuals:
+            individual.evaluate_vs_every_possibility()
+            # print('---------')
+            # print('Network ID:', individual.id)
+            # print('Network Score:', individual.score)
+
+    def run_versus_self(self):
+        """."""
+        for a in self.individuals:
+            for b in self.individuals:
+                if a != b and a not in b.seen_list and b not in a.seen_list:
+                    a.evaluate_versus(b)
+                    b.evaluate_versus(a)
+                    a.seen_list.append(b)
+                    b.seen_list.append(a)
+
+    def run_versus_greedy_bot(self):
+        """."""
+        for i in range(len(self.individuals)):
+            self.individuals[i].evaluate_versus_greedy_bot()
+            print(self.individuals[i].score)
+
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        print('running generation', self.id)
+        self.test_boards = self.generate_test_boards()
+        print('running generation', self.tag)
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
             print('---------')
-            print('Network ID:', individual.id)
+            print('Network ID:', individual.tag)
             print('Network Score:', individual.score)
             print('Network Age:', individual.age)
 
@@ -307,16 +462,19 @@ class Generation(object):
         x = x * x
         return pool[floor(x * len(pool))]
 
-    def next(self, mutation_rate=0.05, clones=0, id=-1):
+    def next(self, mutation_rate=0.05, clones=0, tag=-1):
         """."""
+        old_best = self.individuals[0]
         self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
         print('+++++++++++++')
-        print('Generation: ', self.id)
+        print('Generation: ', self.tag)
+        print('High Score:', self.individuals[0].score)
+        print('Old best still best:', old_best == self.individuals[0])
         print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
         print('+++++++++++++')
-        if id < 0:
-            id = self.id + 1
+        if tag < 0:
+            tag = self.tag + 1
         old_individuals = self.individuals
         new_individuals = []
         for i in range(clones):
@@ -329,23 +487,70 @@ class Generation(object):
             if a != b:
                 new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
                 new_individuals.append(new)
-        return Generation(new_individuals, id)
+        return Generation(new_individuals, tag)
 
-    def new_random(self, size=100, sizes=[18, 27, 9, 1], id=0, imported=[]):
+    def next_under_greedybot(self, mutation_rate=0.05, clones=4, tag=-1):
         """."""
+        if clones < 4:
+            raise IndexError('Put more than 4 clones in.')
+        self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
+        print('+++++++++++++')
+        print('Generation: ', self.tag)
+        print('High Score:', self.individuals[0].score)
+        print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
+        print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
+        print('+++++++++++++')
+        if tag < 0:
+            tag = self.tag + 1
+        try:
+            old_individuals = self.individuals
+            new_individuals = []
+            for i in range(2):
+                new_individuals.append(
+                    old_individuals[i].clone(len(new_individuals))
+                )
+            high_scores = sorted(self.individuals, key=attrgetter('score'))[::-1]
+            score_two = None
+            if new_individuals[0] != high_scores[0] and new_individuals[1] != high_scores[0]:
+                score_one = high_scores[0]
+            elif new_individuals[0] != high_scores[1] and new_individuals[1] != high_scores[1]:
+                score_one = high_scores[1]
+            else:
+                score_one = high_scores[2]
+            if new_individuals[0] != high_scores[1] and new_individuals[1] != high_scores[1] and score_one != high_scores[1]:
+                score_two = high_scores[1]
+            elif new_individuals[0] != high_scores[2] and new_individuals[1] != high_scores[2] and score_one != high_scores[2]:
+                score_two = high_scores[2]
+            else:
+                score_two = high_scores[3]
+            new_individuals.append(score_one.clone(len(new_individuals)))
+            new_individuals.append(score_two.clone(len(new_individuals)))
+            parents = new_individuals
+            while len(new_individuals) < len(old_individuals):
+                a = self.select(parents)
+                b = self.select(parents)
+                if a != b:
+                    new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
+                    new_individuals.append(new)
+            return Generation(new_individuals, tag)
+        except IndexError:
+            raise IndexError('Must provide at least 4 individuals to next.')
 
+    def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
+
+        """."""
         individuals = [0 for i in range(size)]
         for i in range(len(imported)):
             individuals[i] = imported[i]
-            individuals[i].id = i
+            individuals[i].tag = i
         for i in range(size):
             individuals[i] = Individual().new_random(i, sizes)
-        return Generation(individuals, id)
+        return Generation(individuals, tag)
 
     def export(self, chunk={'index': 0, 'total': 1}):
         """."""
         return {
-            'id': self.id,
+            'tag': self.tag,
             'individuals': list(
                 map(lambda individual: individual.export(), self.individuals)
             )
@@ -353,29 +558,97 @@ class Generation(object):
 
     def gen_import(self, data):
         """."""
-        id = data['id']
-        self.individuals = data['individuals']
-        return Generation(list(map(
-            lambda individual: individual.ind_import(), self.individuals
-        )), id)
+        tag = data['tag']
+        individuals = list(map(
+            lambda individual: self.individuals[0].ind_import(individual),
+            data['individuals']
+        ))
+        return Generation(individuals, tag)
 
 
+import pickle
 test = Generation([])
 test = test.new_random(20)
-for i in range(20):
-    test.run()
-    test = test.next(.5, 3)
-
-
-if __name__ == "__main__":  # pragma: no cover
-    # test = Individual(-1, [18,27,9])
-    # test.evaluate()
-    # print('test score:',test.score)
-    # print('test1 score:',test1.score)
-    test = Generation([])
-    # print(test.test_boards)
-    test = test.new_random(20)
-    # test = test.next()
-    for i in range(20):
+for i in test.individuals:
+    while i.age != 8:
         test.run()
-        test = test.next(1, 3)
+        test = test.next_under_greedybot(.65, 5)
+with open('testpickle', 'wb') as fp:
+    pickle.dump(test.export(), fp)
+with open('testpickle', 'rb') as fp:
+    imported = test.gen_import(pickle.load(fp))
+game = Game()
+a = imported.individuals[0]
+b = imported.individuals[1]
+# import pdb; pdb.set_trace()
+while True:
+    if ' ' not in game.board:
+        break
+    game.move(game.board, a.net.get_move(game))
+    print('------')
+    print('|', game.board[0:3], '|')
+    print('|', game.board[3:6], '|')
+    print('|', game.board[6:9], '|')
+    print('------')
+    if game.winner is not None:
+        a.score += 1
+        break
+    if ' ' not in game.board:
+        break
+    # board_list = []
+    # for x in game.board:
+    #     board_list.append(x)
+    # game.move(game.board, b(board_list, game.turn))
+    game.move(game.board, b.net.get_move(game))
+    print('------')
+    print('|', game.board[0:3], '|')
+    print('|', game.board[3:6], '|')
+    print('|', game.board[6:9], '|')
+    print('------')
+    if game.winner is not None:
+        break
+game = Game()
+a = test.individuals[0]
+b = test.individuals[1]
+# a = test.individuals[0]
+# b = greedy_bot
+while True:
+    # board_list = []
+    # for x in game.board:
+    #     board_list.append(x)
+    # game.move(game.board, b(board_list, game.turn))
+    game.move(game.board, b.net.get_move(game))
+    print('------')
+    print('|', game.board[0:3], '|')
+    print('|', game.board[3:6], '|')
+    print('|', game.board[6:9], '|')
+    print('------')
+    if game.winner is not None:
+        break
+    if ' ' not in game.board:
+        break
+    game.move(game.board, a.net.get_move(game))
+    print('------')
+    print('|', game.board[0:3], '|')
+    print('|', game.board[3:6], '|')
+    print('|', game.board[6:9], '|')
+    print('------')
+    if game.winner is not None:
+        break
+    if ' ' not in game.board:
+        break
+buckets = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+}
+for i in test.individuals:
+    game = Game()
+    buckets[i.net.get_move(game)] += 1
+print(buckets)
