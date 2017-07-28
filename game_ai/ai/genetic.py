@@ -85,6 +85,11 @@ class Network(Neural):
                 top.append(move)
         return top[0]
 
+    def _import(self, data):
+        net = Network(self.get_sizes(data['thresholds']))
+        net._set_thresholds(data['thresholds'])
+        net._set_weights(data['weights'])
+        return net
 
 class Individual(object):
     """Represent a individual neural net."""
@@ -94,6 +99,7 @@ class Individual(object):
         self.tag = tag
         self.net = net
         self.age = float('-inf')
+        self.success = 0
         self.score = 0
         self.AGE_MAX = 8
         self.SCORE_MAX = 4298
@@ -229,6 +235,8 @@ class Individual(object):
         self.score = 0
         failed_depth = -1
         filler_list = []
+        yes = 0
+        no = 0
         for depth in range(len(test_boards)):
             for board in test_boards[depth]:
                 if not self.evaluate_one(board) and failed_depth < 0:
@@ -238,19 +246,8 @@ class Individual(object):
             else:
                 filler_list.append(False)
         self.age = len(test_boards) if failed_depth < 0 else failed_depth
-        if self.age >= 2:
-            for board in test_boards[1]:
-                game = Game(board['board'])
-                if self.net.get_move(game) == board['Right_moves']:
-                    print('used move with success:', self.net.get_move(game))
-                    print('---')
-                else:
-                    print('used move unsuccessfully:', self.net.get_move(game))
-                    print('The best move was:', board['Right_moves'])
-                    print('---')
-            yes = 0
-            no = 0
-            for board in test_boards[2]:
+        for i in range(self.age):
+            for board in test_boards[i]:
                 game = Game(board['board'])
                 if self.net.get_move(game) == board['Right_moves']:
                     yes += 1
@@ -259,6 +256,7 @@ class Individual(object):
             print('successes:', yes)
             print('wrong:', no)
             print('-----')
+        return yes
 
     def compare(self, a, b):
         """Compare two individual Neurals by age or score."""
@@ -365,6 +363,9 @@ class Individual(object):
         tag = data['tag']
         net = Network([1, 1])
         net = Network(net._import(data['net']).layers)
+        net = Network([18, 27, 9, 1])
+        net._set_weights(data['net']['weights'])
+        net._set_thresholds(data['net']['thresholds'])
         sizes = net.get_sizes(net.layers)
         if len(sizes) < 1 or sizes[0] != 18 or sizes[-1] != 1:
             raise ValueError(
@@ -381,6 +382,32 @@ class Generation(object):
         self.tag = tag
         self.individuals = individuals
 
+    def generate_pointed_boards(self, board='         '):
+        game = Game(board)
+        if ' ' not in game.board:
+                pass
+        else:
+            for move in game.emptysquares(game.board):
+                game.move(game.board, move)
+                if game.winner is not None:
+                    game.undo()
+                elif ' ' not in game.board:
+                    game.undo()
+                else:
+                    board_list = []
+                    for x in game.board:
+                        board_list.append(x)
+                    correct_move = greedy_bot(board_list, game.turn)
+                    c_dict = {
+                        'board': game.board,
+                        'Right_moves': correct_move
+                    }
+                    self.boards_dict[game.board] = c_dict
+                    if game.winner is not None:
+                        pass
+                    else:
+                        self.generate_pointed_boards(game.board)
+                    game.undo()
 
     def generate_test_boards(
         self, boards=[[] for i in range(8)], visited={}, game=None
@@ -437,7 +464,9 @@ class Generation(object):
         """."""
         for i in range(len(self.individuals)):
             self.individuals[i].evaluate_versus_greedy_bot()
-            print(self.individuals[i].score)
+            print('---------')
+            print('Network ID:', self.individuals[i].tag)
+            print('Network Score:', self.individuals[i].score)
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
@@ -449,6 +478,26 @@ class Generation(object):
             print('Network ID:', individual.tag)
             print('Network Score:', individual.score)
             print('Network Age:', individual.age)
+
+    def run_under_pointed_bot(self):
+        """Run evaluate for every individual network in a Generation."""
+        self.boards_dict = {}
+        self.generate_pointed_boards()
+        boards_list = [[] for i in range(9)]
+        for key in self.boards_dict:
+            if self.boards_dict[key]['board'].count(' ') < 9 and self.boards_dict[key]['board'].count(' ') % 2 == 0:
+                boards_list[9 - self.boards_dict[key]['board'].count(' ')].append(self.boards_dict[key])
+        for i in boards_list:
+            print(len(i))
+            if len(i) > 0:
+                print(i[0])
+        for individual in self.individuals:
+            individual.success = individual.evaluate(boards_list)
+            print('---------')
+            print('Network ID:', individual.tag)
+            print('Network Score:', individual.score)
+            print('Network Age:', individual.age)
+            print('Network success:', individual.success)
 
     def order(self):
         """."""
@@ -469,6 +518,7 @@ class Generation(object):
         print('+++++++++++++')
         print('Generation: ', self.tag)
         print('High Score:', self.individuals[0].score)
+        print('Duplicates?', self.individuals[0] == self.individuals[1])        
         print('Old best still best:', old_best == self.individuals[0])
         print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
@@ -489,55 +539,43 @@ class Generation(object):
                 new_individuals.append(new)
         return Generation(new_individuals, tag)
 
-    def next_under_greedybot(self, mutation_rate=0.05, clones=4, tag=-1):
+    def next_under_greedybot(self, mutation_rate=0.05, tag=-1):
         """."""
-        if clones < 4:
-            raise IndexError('Put more than 4 clones in.')
-        old_best = self.individuals[0]
-        self.individuals = sorted(self.individuals, key=attrgetter('age', 'score'))[::-1]
+        for individual in self.individuals:
+            if individual.success == 0 and individual.age == 1:
+                individual.success = 1
+        self.individuals = sorted(self.individuals,
+                                  key=attrgetter('success', 'score'))[::-1]
         print('+++++++++++++')
         print('Generation: ', self.tag)
-        print('High Score:', self.individuals[0].score)
-        print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
-        print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
+        print('Oldest High Score:', self.individuals[0].score)
+        print('Generation average Score:',
+              sum(ind.score for ind in self.individuals) / (len(self.individuals)))
+        print('Generation average age:',
+              sum(ind.age for ind in self.individuals) / (len(self.individuals)))
         print('+++++++++++++')
         if tag < 0:
             tag = self.tag + 1
         try:
             old_individuals = self.individuals
             new_individuals = []
-            for i in range(clones):
-                new_individuals.append(
-                    old_individuals[i].clone(len(new_individuals))
-                )
-            age_one = self.individuals[0]
-            age_two = self.individuals[1]
-            high_scores = sorted(self.individuals, key=attrgetter('score'))[::-1]
-            score_two = None
-            if age_one != high_scores[0] and age_two != high_scores[0]:
-                score_one = high_scores[0]
-            elif age_one != high_scores[1] and age_two != high_scores[1]:
-                score_one = high_scores[1]
-            else:
-                score_one = high_scores[2]
-            if age_one != high_scores[1] and age_two != high_scores[1] and score_one != high_scores[1]:
-                score_two = high_scores[1]
-            elif age_one != high_scores[2] and age_two != high_scores[2] and score_one != high_scores[2]:
-                score_two = high_scores[2]
-            else:
-                score_two = high_scores[3]
-            parents = [age_one, age_two, score_one, score_two]
+            new_individuals.append(self.individuals[0].clone(len(new_individuals)))
+            new_individuals.append(self.individuals[1].clone(len(new_individuals)))
+            new_individuals.append(self.individuals[2].clone(len(new_individuals)))
+            parents = new_individuals
             while len(new_individuals) < len(old_individuals):
                 a = self.select(parents)
                 b = self.select(parents)
                 if a != b:
-                    new = a.reproduce(len(new_individuals), b).mutate(mutation_rate)
+                    new = a.reproduce(len(new_individuals),
+                                      b).mutate(mutation_rate)
                     new_individuals.append(new)
             return Generation(new_individuals, tag)
         except IndexError:
-            raise IndexError('Must provide at least 4 individuals to next.')
+            raise IndexError('Must provide at least 3 individuals to next.')
 
-    def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
+
+    def new_random(self, size=100, sizes=[18, 27, 18, 9, 1], tag=0, imported=[]):
 
         """."""
         individuals = [0 for i in range(size)]
@@ -569,20 +607,20 @@ class Generation(object):
 
 if __name__ == "__main__":  # pragma: no cover
     """."""
-    import pickle
+    # import pickle
     test = Generation([])
     test = test.new_random(20)
-    for i in range(1000):
-        test.run()
-        test = test.next(.65, 1)
-    with open('testpickle', 'wb') as fp:
-        pickle.dump(test.export(), fp)
-    with open('testpickle', 'rb') as fp:
-        imported = test.gen_import(pickle.load(fp))
+    for i in range(10):
+        test.run_under_pointed_bot()
+        test = test.next_under_greedybot(.05, 5)
+    # with open('testpickle', 'wb') as fp:
+    #     pickle.dump(test.export(), fp)
+    # with open('testpickle', 'rb') as fp:
+    #     imported = test.gen_import(pickle.load(fp))
+
     game = Game()
-    a = imported.individuals[0]
-    b = imported.individuals[1]
-    # import pdb; pdb.set_trace()
+    a = test.individuals[0]
+    b = greedy_bot    # import pdb; pdb.set_trace()
     while True:
         if ' ' not in game.board:
             break
@@ -597,11 +635,11 @@ if __name__ == "__main__":  # pragma: no cover
             break
         if ' ' not in game.board:
             break
-        # board_list = []
-        # for x in game.board:
-        #     board_list.append(x)                
-        # game.move(game.board, b(board_list, game.turn))
-        game.move(game.board, b.net.get_move(game))
+        board_list = []
+        for x in game.board:
+            board_list.append(x)                
+        game.move(game.board, b(board_list, game.turn))
+        # game.move(game.board, b.net.get_move(game))
         print('------')
         print('|', game.board[0:3], '|')
         print('|', game.board[3:6], '|')
@@ -611,15 +649,13 @@ if __name__ == "__main__":  # pragma: no cover
             break
     game = Game()
     a = test.individuals[0]
-    b = test.individuals[1]
-    # a = test.individuals[0]
-    # b = greedy_bot
+    b = greedy_bot
     while True:
-        # board_list = []
-        # for x in game.board:
-        #     board_list.append(x)                
-        # game.move(game.board, b(board_list, game.turn))
-        game.move(game.board, b.net.get_move(game))
+        board_list = []
+        for x in game.board:
+            board_list.append(x)                
+        game.move(game.board, b(board_list, game.turn))
+        # game.move(game.board, b.net.get_move(game))
         print('------')
         print('|', game.board[0:3], '|')
         print('|', game.board[3:6], '|')
@@ -654,4 +690,6 @@ if __name__ == "__main__":  # pragma: no cover
         game = Game()
         buckets[i.net.get_move(game)] += 1
     print(buckets)
+
+
 

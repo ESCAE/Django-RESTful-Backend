@@ -12,10 +12,11 @@ class Node(object):
 class Neural(object):
     """Neural Net Class."""
 
-    def __init__(self, sizesornodes):
+    def __init__(self, sizesornodes=None):
         """Init the net."""
         self.layers = []
-        self.net(sizesornodes)
+        if sizesornodes:
+            self.net(sizesornodes)
 
     def net(self, sizesornodes):
         """Create net with sizes or list."""
