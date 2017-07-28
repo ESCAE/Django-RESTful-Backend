@@ -67,7 +67,7 @@ def new_board(board, move, chariter='X', flag=0):
 
 def directory(board, move, NN=0):
     """middle man for the front end and the NN"""
-    network = pass
+    network = []
     board_list = []
     for x in board:
         board_list.append(x)
