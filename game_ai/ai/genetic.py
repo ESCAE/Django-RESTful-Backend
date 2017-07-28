@@ -237,10 +237,17 @@ class Individual(object):
     def _splice_callback(self, node, layer_index, index, nodes, source):
         """Use the heads function get a 50/50 on new thresholds and weights."""
         if self.heads():
-            node.threshold = source.layers[layer_index][index].threshold
+            try:
+                node.threshold = source.layers[layer_index][index].threshold
+            except IndexError:
+                    pass
+
         for i in range(len(node.weights)):
             if self.heads():
-                node.weights[i] = source.layers[layer_index][index].weights[i]
+                try:
+                    node.weights[i] = source.layers[layer_index][index].weights[i]
+                except IndexError:
+                    pass
 
 
     def reproduce(self, id, other):
@@ -267,20 +274,21 @@ class Individual(object):
         return v
 
     def new_randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
-        if self.heads():
-            del net.layers[-1]
-            net.layers.append([[0] * 9])
-            net.layers.append([])
-        elif self.heads():
-            del net.layers[-1]
-        for i in net.layers[1:-1]:
-            if self.heads():
-                i.append([0] * 9)
-            elif self.heads():
-                i = i[:-8]
+        if random.random() <= 0.10:
+            old_dict = net.export()
+            old_dict['thresholds'].insert(-2, [0] * 9)
+            for i in range(len(old_dict['weights'][-2])):
+                old_dict['weights'][-2][i] = [0] * len(old_dict['thresholds'][-2])
+            net = Network()._import(old_dict)
+        elif random.random() <= 0.10    :
+            if len(net.layers) > 4:
+                old_dict = net.export()
+                del old_dict['thresholds'][-2]
+                del old_dict['weights'][-2]
+                net = Network()._import(old_dict)
         new = Network(net.layers)
         new.each_node(False, self._randomize_callback, modify_chance, min_thresh, max_thresh, min_weight, max_weight)
-        pass
+        return new
 
     def randomize(self, net, modify_chance=0.01, min_thresh=-100, max_thresh=100, min_weight=-10, max_weight=10):
         """The randomize method grabs each node in a neural net and uses the randomize callback."""
@@ -309,7 +317,7 @@ class Individual(object):
 
     def mutate(self, mutation_rate=0.05):
         """Mutation the current instance of the Individual."""
-        self.new_randomize(self.net, mutation_rate)
+        self.net = self.new_randomize(self.net, mutation_rate)
         return self
 
     def export(self):
@@ -386,14 +394,15 @@ class Generation(object):
 
     def run(self):
         """Run evaluate for every individual network in a Generation."""
-        # print
+        self.test_boards = self.generate_test_boards()
         ('running generation', self.id)
         for individual in self.individuals:
             individual.evaluate(self.test_boards)
-            # print('---------')
-            # print('Network ID:', individual.id)
-            # print('Network Score:', individual.score)
-            # print('Network Age:', individual.age)
+            print('---------')
+            print('Network ID:', individual.id)
+            print('Network Score:', individual.score)
+            print('Network Age:', individual.age)
+            print('Network sizes:', individual.net.get_sizes(individual.net.layers))
 
     def order(self):
         """."""
@@ -417,6 +426,7 @@ class Generation(object):
         print('Generation average Score:', sum(ind.score for ind in self.individuals)/(len(self.individuals)))
         print('Generation average age:', sum(ind.age for ind in self.individuals)/(len(self.individuals)))
         print('+++++++++++++')
+
         if id < 0:
             id = self.id + 1
         old_individuals = self.individuals
@@ -464,9 +474,8 @@ class Generation(object):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    import sys, os
     test = Generation([])
-    test = test.new_random(10)
-    for i in range(500):
-        test.run_versus_self()
-        test = test.next(.65, 2)
+    test = test.new_random(20)
+    while True:
+        test.run()
+        test = test.next(0.05, 5)

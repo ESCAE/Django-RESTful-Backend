@@ -7,12 +7,14 @@ class Node(object):
     def __init__(self):
         """Init the node."""
         self.input = 0
+        self.weights = []
+        self.threshold = 1
 
 
 class Neural(object):
     """Neural Net Class."""
 
-    def __init__(self, sizesornodes):
+    def __init__(self, sizesornodes=[1]):
         """Init the net."""
         self.layers = []
         if type(sizesornodes) == list:
@@ -36,6 +38,7 @@ class Neural(object):
         for i in range(len(sizes)):
             self.layers.append([])
             for j in range(sizes[i]):
+                # if type(j) is int:
                 self.layers[i].append(self.make_node(i, j, sizes, layers))
 
     def get_sizes(self, nodes):
@@ -44,17 +47,26 @@ class Neural(object):
 
     def make_node(self, layerindex, nodeindex, sizes, layers=None):
         """Make a new Node."""
+        # print('Make node is running.')
         node = Node()
         if layerindex < len(sizes) - 1:
             try:
                 node.threshold = layers[layerindex][nodeindex].threshold
-            except (IndexError, AttributeError):
+            except (IndexError, AttributeError, TypeError):
                 node.threshold = 1
             try:
+                # print('*****************')
+                # print('node:',node)
+                # print('node.weights:', node.weights)
+                # print('layers:', layers)
+                # print('layerindex:', layerindex)
+                # print('nodeindex:', nodeindex)
+                # print(layers[layerindex][nodeindex].weights)
+
                 node.weights = list(map(
                     lambda x: x, layers[layerindex][nodeindex].weights
                 ))
-            except (IndexError, AttributeError):
+            except (IndexError, AttributeError, TypeError):
                 node.weights = [0 for i in range(sizes[layerindex + 1])]
         return node
 
@@ -162,9 +174,25 @@ class Neural(object):
         self.each_node(False, self._set_weights_callback, weights)
 
     def _set_weights_callback(self, node, layerindex, index, nodes, weights):
-        """Set wieghts."""
-        node.weights = weights[layerindex][index]
-        # print(weights[layerindex][index])
+        """Set weights."""
+        # print(layerindex, index)
+        # print(type(weights[layerindex]))
+        # print(len(weights[layerindex]))
+        if len(node.weights) < 9:
+            # print('---')
+            # print(layerindex)
+            # print('---')
+            node.weights = [0]
+
+        else:
+            node.weights = weights[layerindex][index]
+
+            # node.weights[layerindex].append(self.make_node(layerindex, index, self.get_sizes(nodes)))
+            # print(layerindex, index)
+            # weights[layerindex].append([])
+            # weights[layerindex][index].append(self.make_node(layerindex, index, self.get_sizes(nodes)))
+            # print(weights[layerindex][index])
+            # print(weights[layerindex][index])
 
     # ========== reset related =========== #
 
