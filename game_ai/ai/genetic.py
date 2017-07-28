@@ -239,7 +239,7 @@ class Individual(object):
             for board in test_boards[depth]:
                 if not self.evaluate_one(board) and failed_depth < 0:
                     failed_depth = depth
-                    if depth > failed_depth:
+                    if depth > failed_depth and failed_depth > -1:
                         break
                 elif failed_depth < 0:
                     chain_of_successes += 1
@@ -394,10 +394,13 @@ class Generation(object):
                         'Right_moves': correct_move
                     }
                     self.boards_dict[game.board] = c_dict
+                    game.move(game.board, correct_move)
                     if game.winner is not None:
                         pass
                     else:
                         self.generate_pointed_boards(game.board)
+                    game.undo()
+                if len(game.history) > 0:
                     game.undo()
 
     def generate_test_boards(
@@ -573,6 +576,7 @@ class Generation(object):
         print('+++++++++++++')
         print('Generation: ', self.tag)
         print('Oldest High Score:', self.individuals[0].score)
+        print('Oldest Successes:', self.individuals[0].success)
         print('Generation average Score:',
               sum(ind.score for ind in self.individuals) / (len(self.individuals)))
         print('Generation average age:',
@@ -599,7 +603,7 @@ class Generation(object):
             raise IndexError('Must provide at least 3 individuals to next.')
 
 
-    def new_random(self, size=100, sizes=[18, 27, 18, 9, 1], tag=0, imported=[]):
+    def new_random(self, size=100, sizes=[18, 27, 9, 1], tag=0, imported=[]):
 
         """."""
         individuals = [0 for i in range(size)]
@@ -633,72 +637,48 @@ if __name__ == "__main__":  # pragma: no cover
     """."""
     # import pickle
     test = Generation([])
-    test = test.new_random(20)
-    for i in range(10):
-        test.run_under_pointed_bot(True)
-        test = test.next_under_greedybot_pointed(.65)
+    test = test.new_random(40)
+    while True:
+        try:
+            test.run_under_pointed_bot()
+            test = test.next_under_greedybot_pointed(.05)
+        except KeyboardInterrupt:
+            print(test.individuals[0].export())
+            import time
+            game = Game()
+            a = test.individuals[0]
+            b = greedy_bot
+            while True:
+                board_list = []
+                for x in game.board:
+                    board_list.append(x)                
+                game.move(game.board, b(board_list, game.turn))
+                # game.move(game.board, b.net.get_move(game))
+                print('------')
+                print('|', game.board[0:3], '|')
+                print('|', game.board[3:6], '|')
+                print('|', game.board[6:9], '|')
+                print('------')
+                if game.winner is not None:
+                    break
+                if ' ' not in game.board:
+                    break
+                game.move(game.board, a.net.get_move(game))
+                print('------')
+                print('|', game.board[0:3], '|')
+                print('|', game.board[3:6], '|')
+                print('|', game.board[6:9], '|')
+                print('------')
+                if game.winner is not None:
+                  break
+                if ' ' not in game.board:
+                    break
+                time.sleep(2)
     # with open('testpickle', 'wb') as fp:
     #     pickle.dump(test.export(), fp)
     # with open('testpickle', 'rb') as fp:
     #     imported = test.gen_import(pickle.load(fp))
 
-    game = Game()
-    a = test.individuals[0]
-    b = greedy_bot    # import pdb; pdb.set_trace()
-    while True:
-        if ' ' not in game.board:
-            break
-        game.move(game.board, a.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            a.score += 1
-            break
-        if ' ' not in game.board:
-            break
-        board_list = []
-        for x in game.board:
-            board_list.append(x)                
-        game.move(game.board, b(board_list, game.turn))
-        # game.move(game.board, b.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            break
-    game = Game()
-    a = test.individuals[0]
-    b = greedy_bot
-    while True:
-        board_list = []
-        for x in game.board:
-            board_list.append(x)                
-        game.move(game.board, b(board_list, game.turn))
-        # game.move(game.board, b.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-            break
-        if ' ' not in game.board:
-            break
-        game.move(game.board, a.net.get_move(game))
-        print('------')
-        print('|', game.board[0:3], '|')
-        print('|', game.board[3:6], '|')
-        print('|', game.board[6:9], '|')
-        print('------')
-        if game.winner is not None:
-          break
-        if ' ' not in game.board:
-            break
     buckets ={
     0:0,
     1:0,
